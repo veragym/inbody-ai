@@ -91,6 +91,7 @@ html, body {
 .sticky-bottom .btn-primary,
 .sticky-bottom .btn-secondary {
   flex: 1;
+  margin-top: 0;
 }
 
 /* ══════════════════════════════════════════
