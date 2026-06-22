@@ -34,8 +34,8 @@ registerScreen("member-search", {
         </div>
       </div>
       <div class="form-group">
-        <label>출생년도</label>
-        <input type="number" id="new-birth" class="form-input" placeholder="1990" min="1930" max="2015" />
+        <label>나이</label>
+        <input type="number" id="new-age" class="form-input" placeholder="35" min="10" max="100" inputmode="numeric" />
       </div>
     </div>
     <div class="form-group">
@@ -88,7 +88,7 @@ registerScreen("member-search", {
     data-gender="${m.gender || ""}" data-birth="${m.birth_year || ""}"
     data-phone="${m.phone_last4 || ""}" data-branch="${m.branch}">
     <span class="member-name">${m.name}</span>
-    <span class="member-meta">${m.gender || "—"} · ${m.birth_year ? m.birth_year + "년생" : "—"} · ${m.phone_last4 ? "***" + m.phone_last4 : "—"}</span>
+    <span class="member-meta">${m.gender || "—"} · ${m.birth_year ? (new Date().getFullYear() - m.birth_year) + "세" : "—"} · ${m.phone_last4 ? "***" + m.phone_last4 : "—"}</span>
   </button>
   <div class="member-row-actions">
     <span class="member-history-badge" id="hist-${m.id}">기록 확인 중...</span>
@@ -230,8 +230,8 @@ registerScreen("member-search", {
     document.getElementById("create-btn").addEventListener("click", async () => {
       const name = document.getElementById("new-name").value.trim();
       if (!name) { alert("이름을 입력해주세요."); return; }
-      const birth_year = document.getElementById("new-birth").value
-        ? Number(document.getElementById("new-birth").value) : null;
+      const ageVal = document.getElementById("new-age").value;
+      const birth_year = ageVal ? new Date().getFullYear() - Number(ageVal) : null;
       const phone_last4 = document.getElementById("new-phone4").value.trim() || null;
 
       const createBtn = document.getElementById("create-btn");
