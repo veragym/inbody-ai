@@ -84,6 +84,13 @@ html, body {
   background: var(--surface-base);
   border-top: 1px solid var(--border-default);
   z-index: 100;
+  display: flex;
+  gap: var(--space-3);
+}
+
+.sticky-bottom .btn-primary,
+.sticky-bottom .btn-secondary {
+  flex: 1;
 }
 
 /* ══════════════════════════════════════════

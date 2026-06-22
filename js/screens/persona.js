@@ -33,6 +33,7 @@ registerScreen("persona", {
   </div>
 
   <div class="sticky-bottom">
+    <button class="btn-secondary" id="save-exit-btn">저장 후 나가기</button>
     <button class="btn-primary" id="next-btn">다음</button>
   </div>
 </div>`;
@@ -50,6 +51,11 @@ registerScreen("persona", {
           chip.classList.add("selected");
         }
       });
+    });
+
+    document.getElementById("save-exit-btn").addEventListener("click", () => {
+      State.personas = [...selected];
+      navigate("member-search");
     });
 
     document.getElementById("next-btn").addEventListener("click", () => {
