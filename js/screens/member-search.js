@@ -87,16 +87,16 @@ registerScreen("member-search", {
   <button class="member-btn" data-id="${m.id}" data-name="${m.name}"
     data-gender="${m.gender || ""}" data-birth="${m.birth_year || ""}"
     data-phone="${m.phone_last4 || ""}" data-branch="${m.branch}">
-    <div class="member-btn-left">
-      <span class="member-name">${m.name}</span>
-      <span class="member-meta">${m.gender || "—"} · ${m.birth_year ? m.birth_year + "년생" : "—"} · ${m.phone_last4 ? "***" + m.phone_last4 : "—"}</span>
-    </div>
-    <span class="member-history-badge" id="hist-${m.id}">기록 확인 중...</span>
+    <span class="member-name">${m.name}</span>
+    <span class="member-meta">${m.gender || "—"} · ${m.birth_year ? m.birth_year + "년생" : "—"} · ${m.phone_last4 ? "***" + m.phone_last4 : "—"}</span>
   </button>
-  <button class="btn-history" data-id="${m.id}" data-name="${m.name}"
-    data-gender="${m.gender || ""}" data-birth="${m.birth_year || ""}"
-    data-phone="${m.phone_last4 || ""}" data-branch="${m.branch}">이력</button>
-  <button class="btn-delete" data-id="${m.id}" data-name="${m.name}">삭제</button>
+  <div class="member-row-actions">
+    <span class="member-history-badge" id="hist-${m.id}">기록 확인 중...</span>
+    <button class="btn-history" data-id="${m.id}" data-name="${m.name}"
+      data-gender="${m.gender || ""}" data-birth="${m.birth_year || ""}"
+      data-phone="${m.phone_last4 || ""}" data-branch="${m.branch}">이력</button>
+    <button class="btn-delete" data-id="${m.id}" data-name="${m.name}">삭제</button>
+  </div>
 </div>`).join("");
         showNewTrigger();
 

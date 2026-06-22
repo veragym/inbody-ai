@@ -373,71 +373,115 @@ html, body {
 
 .search-results { margin-bottom: var(--space-4); }
 
-.member-btn {
+/* 회원 카드 — 카드 테두리는 .member-row에 */
+.member-row {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  min-height: 64px;
-  padding: var(--space-3) var(--space-4);
-  background: var(--surface-card);
+  align-items: stretch;
   border: 1.5px solid var(--border-default);
   border-radius: var(--radius-md);
   margin-bottom: var(--space-3);
-  cursor: pointer;
+  background: var(--surface-card);
+  overflow: hidden;
   transition: border-color 0.15s;
-  gap: var(--space-2);
 }
-.member-btn:hover { border-color: var(--accent-primary); }
+.member-row:hover { border-color: var(--accent-primary); }
 
-/* member-row 전체에 hover 테두리 */
-.member-row:hover .member-btn,
-.member-row:hover .btn-history,
-.member-row:hover .btn-delete {
-  border-color: var(--accent-primary);
-}
-.member-row:hover .btn-history {
-  border-right-color: rgba(14,107,79,0.25);
-}
-
-.member-btn-left {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  text-align: left;
+.member-btn {
   flex: 1;
   min-width: 0;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 3px;
+  padding: var(--space-3) var(--space-4);
+  min-height: 64px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
 }
+
 .member-name {
   font-size: var(--text-h3-size);
   font-weight: 600;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 .member-meta {
   font-size: var(--text-caption-size);
   color: var(--text-tertiary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+}
+
+/* 오른쪽 영역: 기록 뱃지 + 이력/삭제 버튼 */
+.member-row-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  border-left: 1px solid var(--border-default);
 }
 
 .member-history-badge {
   font-size: var(--text-caption-size);
   color: var(--text-tertiary);
   white-space: nowrap;
-  text-align: right;
-  flex-shrink: 0;
-  padding-left: var(--space-2);
+  padding: 0 var(--space-3);
 }
 .member-history-badge.has-record {
   color: var(--accent-primary);
   font-weight: 600;
 }
-.member-history-badge.no-record {
-  color: var(--text-tertiary);
+
+.btn-history,
+.btn-delete {
+  flex-shrink: 0;
+  width: 52px;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-left: 1px solid var(--border-default);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-history { color: var(--accent-primary); }
+.btn-history:active { background: rgba(14,107,79,0.07); }
+.btn-delete  { color: var(--status-low); }
+.btn-delete:active  { background: rgba(192,74,43,0.07); }
+
+/* 모바일: 2단 카드 */
+@media (max-width: 480px) {
+  .member-row { flex-direction: column; }
+
+  .member-btn {
+    min-height: 52px;
+    border-bottom: 1px solid var(--border-default);
+  }
+
+  .member-row-actions {
+    border-left: none;
+    min-height: 48px;
+    padding: 0 var(--space-3);
+    gap: 0;
+  }
+
+  .member-history-badge {
+    flex: 1;
+    padding: 0;
+    white-space: normal;
+    line-height: 1.4;
+  }
+
+  .btn-history,
+  .btn-delete {
+    width: auto;
+    padding: 0 var(--space-3);
+    min-height: 48px;
+    align-self: stretch;
+  }
 }
 
 .revisit-banner {
@@ -923,54 +967,6 @@ html, body {
   gap: var(--space-4);
 }
 
-/* 회원 목록 — 이력·삭제 버튼 포함 row */
-.member-row {
-  display: flex;
-  align-items: stretch;
-  gap: 0;
-  margin-bottom: var(--space-3);
-}
-
-.member-row .member-btn {
-  flex: 1;
-  min-width: 0;
-  height: auto;
-  min-height: 64px;
-  margin-bottom: 0;
-  border-radius: var(--radius-md) 0 0 var(--radius-md);
-  border-right: none;
-}
-
-.btn-history,
-.btn-delete {
-  flex-shrink: 0;
-  width: 56px;
-  height: 64px;
-  background: var(--surface-card);
-  border: 1.5px solid var(--border-default);
-  font-size: 13px;
-  font-weight: 600;
-  font-family: inherit;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s;
-}
-
-.btn-history {
-  color: var(--accent-primary);
-  border-left: none;
-  border-right: 1px solid var(--border-subtle);
-}
-.btn-history:active { background: rgba(14,107,79,0.07); }
-
-.btn-delete {
-  color: var(--status-low);
-  border-left: none;
-  border-radius: 0 var(--radius-md) var(--radius-md) 0;
-}
-.btn-delete:active { background: rgba(192,74,43,0.07); }
 
 /* 이력 카드 */
 .history-card {
