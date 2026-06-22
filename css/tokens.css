@@ -1,0 +1,93 @@
+/* ============================================================
+   베라짐 인바디 AI 영업툴 — 디자인 토큰 (02_디자인규칙.md v2 반영)
+   골드 폐기 / status 적-녹-청 분리 버전.
+   Claude Code: 이 파일을 그대로 import 하여 사용.
+   ============================================================ */
+
+:root {
+  /* ---- 1.1 베이스 (배경/표면) ---- */
+  --surface-base:     #F7F9F8;
+  --surface-card:     #FFFFFF;
+  --surface-elevated: #FFFFFF;
+  --surface-sunken:   #EEF2F0;
+
+  /* ---- 1.2 텍스트 ---- */
+  --text-primary:   #0F1B17;
+  --text-secondary: #4A5752;
+  --text-tertiary:  #8A958F;
+  --text-inverse:   #FFFFFF;
+
+  /* ---- 1.3 핵심 액센트 (단일 그린, 골드 폐기) ---- */
+  --accent-primary:      #0E6B4F;
+  --accent-primary-dark: #08402F;
+
+  /* ---- 1.4 상태 컬러 (인바디 판정: 적/녹/청) ---- */
+  --status-low:      #C04A2B;  /* 표준 이하 */
+  --status-standard: #0E6B4F;  /* 표준 */
+  --status-high:     #1E6FB0;  /* 표준 이상(과다) */
+  --status-neutral:  #8A958F;  /* 데이터 없음 */
+
+  /* ---- 1.5 페르소나 칩 ---- */
+  --persona-selected-bg:   #0E6B4F;
+  --persona-selected-text: #FFFFFF;
+  --persona-unselected-bg: #EEF2F0;
+  --persona-unselected-text:#4A5752;
+  --persona-border:        #D7DEDA;
+
+  /* ---- 1.6 보더/디바이더 ---- */
+  --border-default: #E0E6E2;
+  --border-strong:  #C5CFC9;
+
+  /* ---- 3.1 간격 ---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* ---- 3.3 라운딩/그림자 ---- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+  --shadow-card: 0 1px 3px rgba(15,27,23,0.06), 0 1px 2px rgba(15,27,23,0.04);
+
+  /* ---- 2.2 타입 스케일 (size / weight / line-height) ---- */
+  --text-display-size: 40px; --text-display-weight: 700; --text-display-lh: 1.1;
+  --text-h1-size: 28px; --text-h1-weight: 700; --text-h1-lh: 1.2;
+  --text-h2-size: 22px; --text-h2-weight: 600; --text-h2-lh: 1.3;
+  --text-h3-size: 18px; --text-h3-weight: 600; --text-h3-lh: 1.4;
+  --text-body-size: 16px; --text-body-weight: 400; --text-body-lh: 1.6;
+  --text-body-lg-size: 18px; --text-body-lg-weight: 400; --text-body-lg-lh: 1.6;
+  --text-caption-size: 13px; --text-caption-weight: 400; --text-caption-lh: 1.4;
+  --text-data-size: 32px; --text-data-weight: 700; --text-data-lh: 1.0;
+}
+
+/* ---- 2.1 글꼴 ---- */
+body {
+  font-family: 'Pretendard', -apple-system, 'Apple SD Gothic Neo', sans-serif;
+  background: var(--surface-base);
+  color: var(--text-primary);
+}
+
+/* 인바디 수치 표시 영역: 자릿수 정렬 */
+.inbody-num { font-variant-numeric: tabular-nums; }
+
+/* ---- 4. 시그니처: 막대그래프 판정 바 (색 + 마커위치 이중 인코딩) ----
+   .judge-bar > .judge-marker[data-status="low|standard|high"]
+   상태별 색은 var(--status-*), 마커 위치는 left% 로 지정.
+   색에만 의존하지 말 것 → 라벨/아이콘 병행 (접근성 7장). */
+
+/* ---- 5.4 회차 카드: 추천 강조는 그린 보더 + 뱃지 (골드 미사용) ---- */
+.session-card.is-recommended {
+  border: 2px solid var(--accent-primary);
+}
+.session-card .badge-recommend {
+  background: var(--accent-primary);
+  color: var(--text-inverse);
+  border-radius: var(--radius-pill);
+  padding: 2px 10px;
+  font-size: var(--text-caption-size);
+}
