@@ -329,6 +329,11 @@ html, body {
   gap: var(--space-3);
   align-items: center;
   margin-bottom: var(--space-4);
+  width: 100%;
+}
+
+.search-area .search-input {
+  min-width: 0;
 }
 
 .search-input {
@@ -905,6 +910,8 @@ html, body {
 
 .member-row .member-btn {
   flex: 1;
+  min-width: 0;
+  height: 64px;
   margin-bottom: 0;
   border-radius: var(--radius-md) 0 0 var(--radius-md);
   border-right: none;
@@ -913,7 +920,8 @@ html, body {
 .btn-history,
 .btn-delete {
   flex-shrink: 0;
-  width: 52px;
+  width: 56px;
+  height: 64px;
   background: var(--surface-card);
   border: 1.5px solid var(--border-default);
   font-size: 13px;
