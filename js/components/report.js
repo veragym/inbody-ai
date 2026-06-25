@@ -447,8 +447,6 @@ function renderMemberReport(ai, State) {
   ${_aiTextSection("운동 전략", ai?.exercise_strategy)}
   ${_aiTextSection("식단 전략", ai?.nutrition_strategy)}
   ${_matrix(State.preInputs)}
-  ${_aiBulletSection("상담 흐름", ai?.trainer_talk_track)}
-  ${_aiBulletSection("설명 시 주의할 점", ai?.caution_notes)}
   ${_learning(pain)}
 
   <p class="rep-foot">이 분석은 ${_esc(State.member?.name || "")}님의 InBody 측정값과 표준 규준을 기준으로 작성되었습니다. 예상 변화는 일반적 추정이며 개인차가 있습니다.</p>

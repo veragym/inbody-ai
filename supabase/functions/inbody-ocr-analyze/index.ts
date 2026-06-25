@@ -52,7 +52,14 @@ async function callAnthropicWithFallback(aiReqBase: Record<string, unknown>, mod
     });
 
     const text = await resp.text();
-    if (resp.ok) return JSON.parse(text);
+    if (resp.ok) {
+      try {
+        return JSON.parse(text);
+      } catch (err) {
+        lastErrorText = `parse_failed:${String(err)}`;
+        continue;
+      }
+    }
 
     lastErrorText = text;
     const normalized = text.toLowerCase();
