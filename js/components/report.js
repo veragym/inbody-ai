@@ -319,6 +319,66 @@ function _aiBulletSection(title, items) {
 </section>`;
 }
 
+function _metricInterpText(value, fallback) {
+  if (typeof value === "string") return value;
+  if (value && typeof value === "object") {
+    return typeof value.text === "string" && value.text ? value.text : fallback;
+  }
+  return fallback;
+}
+
+function _metricInterpEvidence(value) {
+  if (value && typeof value === "object" && typeof value.evidence === "string" && value.evidence) {
+    return value.evidence;
+  }
+  return "";
+}
+
+function _metricInterpConfidence(value) {
+  if (value && typeof value === "object" && typeof value.confidence === "string" && value.confidence) {
+    return value.confidence;
+  }
+  return "";
+}
+
+function _analysisMetaSection(meta) {
+  if (!meta || typeof meta !== "object") return "";
+  const deltas = meta.deltas || {};
+  const avgs = meta.averages || {};
+  const recCount = meta.record_count ?? 0;
+  const lowFields = Array.isArray(meta.low_confidence_fields) ? meta.low_confidence_fields : [];
+  const items = [
+    { label: "측정 횟수", value: `${recCount}회`, desc: "최근 누적 기록" },
+    { label: "체중 변화", value: _deltaText(deltas.weight, "kg"), desc: avgs.weight != null ? `평균 ${avgs.weight}kg` : "" },
+    { label: "골격근 변화", value: _deltaText(deltas.skeletal_muscle, "kg"), desc: avgs.skeletal_muscle != null ? `평균 ${avgs.skeletal_muscle}kg` : "" },
+    { label: "체지방률 변화", value: _deltaText(deltas.body_fat_pct, "%"), desc: avgs.body_fat_pct != null ? `평균 ${avgs.body_fat_pct}%` : "" },
+    { label: "인바디 점수 변화", value: _deltaText(deltas.inbody_score, "점"), desc: avgs.inbody_score != null ? `평균 ${avgs.inbody_score}점` : "" },
+  ];
+  const lowText = lowFields.length ? `<p class="rep-compare">신뢰도 낮은 항목: ${_esc(lowFields.join(", "))}</p>` : "";
+  return `
+<section class="rep-blk">
+  <h2 class="rep-sec">판정 근거</h2>
+  <p class="rep-summary">최근 ${recCount}회 기록을 함께 반영해 현재 값과 이전 값, 평균값을 비교했습니다.</p>
+  <div class="rep-comp-items">
+    ${items.map(it => `
+<div class="rep-comp-item">
+  <span class="rep-comp-dot" style="color:#0E6B4F">●</span>
+  <div class="rep-comp-body">
+    <span class="rep-comp-name">${_esc(it.label)} ${_esc(it.value)}</span>
+    ${it.desc ? `<p class="rep-comp-desc">${_esc(it.desc)}</p>` : ""}
+  </div>
+</div>`).join("")}
+  </div>
+  ${lowText}
+</section>`;
+}
+
+function _deltaText(v, unit) {
+  if (v == null) return "비교 불가";
+  const sign = v > 0 ? "+" : "";
+  return `${sign}${v}${unit}`;
+}
+
 // ── 한 줄 진단(상태 기반 결정론) ──────────────────────────────
 function _headline(final, gender) {
   const sm = _band("skeletal_muscle", final.skeletal_muscle, gender).status;
@@ -367,17 +427,18 @@ function renderMemberReport(ai, State) {
   <!-- 체성분 -->
   ${_composition(compData, gender)}
   ${_aiTextSection("AI 체성분 정밀 해석", ai?.body_composition_analysis)}
+  ${_analysisMetaSection(ai?.analysis_meta)}
 
   <!-- 핵심 지표 -->
   <section class="rep-blk">
     <h2 class="rep-sec">핵심 지표 · 현재와 목표</h2>
     <p class="rep-legend"><span><i class="dot-cur"></i> 현재 위치</span><span><i class="dot-tgt"></i> 추천 목표(같은 성별 표준 기준)</span></p>
     ${_reportMetric("skeletal_muscle", final.skeletal_muscle, gender, "골격근량", "kg", true, null,
-      ai?.metric_interp?.skeletal_muscle || "무릎·허리를 받치는 근육이 부족하면 계단·등산에서 먼저 지쳐요.")}
+      _metricInterpText(ai?.metric_interp?.skeletal_muscle, "무릎·허리를 받치는 근육이 부족하면 계단·등산에서 먼저 지쳐요."))}
     ${_reportMetric("body_fat_pct", final.body_fat_pct, gender, "체지방률", "%", false, null,
-      ai?.metric_interp?.body_fat_pct || "표준을 넘으면 혈압·혈당 부담이 커지는 구간이에요.")}
+      _metricInterpText(ai?.metric_interp?.body_fat_pct, "표준을 넘으면 혈압·혈당 부담이 커지는 구간이에요."))}
     ${_reportMetric("bmi", final.bmi, gender, "체질량지수 (BMI)", "", false, MISCONCEPTIONS.bmi,
-      ai?.metric_interp?.bmi || "키 대비 체중이 많으면 무릎·허리 관절에 부담이 가요.")}
+      _metricInterpText(ai?.metric_interp?.bmi, "키 대비 체중이 많으면 무릎·허리 관절에 부담이 가요."))}
   </section>
 
   ${_visceral(raw)}

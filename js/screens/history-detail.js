@@ -48,6 +48,8 @@ registerScreen("history-detail", {
         session_lineup: report.session_lineup ?? legacy.session_lineup,
         recommended_sessions: report.recommended_sessions ?? legacy.recommended_sessions,
         hook_message: report.hook_message ?? legacy.hook_message,
+        analysis_confidence: report.analysis_confidence ?? null,
+        analysis_meta: report.analysis_meta ?? null,
       };
     }
 

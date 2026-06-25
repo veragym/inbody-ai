@@ -9,9 +9,9 @@ function normalizeAiOutput(ai: Record<string, unknown> | null | undefined) {
     comparison_note: typeof ai?.comparison_note === "string" ? ai.comparison_note : null,
     body_composition_analysis: typeof ai?.body_composition_analysis === "string" ? ai.body_composition_analysis : "",
     metric_interp: {
-      skeletal_muscle: typeof metricInterp.skeletal_muscle === "string" ? metricInterp.skeletal_muscle : "",
-      body_fat_pct: typeof metricInterp.body_fat_pct === "string" ? metricInterp.body_fat_pct : "",
-      bmi: typeof metricInterp.bmi === "string" ? metricInterp.bmi : "",
+      skeletal_muscle: normalizeMetricInterp(metricInterp.skeletal_muscle),
+      body_fat_pct: normalizeMetricInterp(metricInterp.body_fat_pct),
+      bmi: normalizeMetricInterp(metricInterp.bmi),
     },
     segmental_analysis: typeof ai?.segmental_analysis === "string" ? ai.segmental_analysis : null,
     priority_goals: Array.isArray(ai?.priority_goals) ? ai.priority_goals : [],
@@ -22,6 +22,23 @@ function normalizeAiOutput(ai: Record<string, unknown> | null | undefined) {
     session_lineup: Array.isArray(ai?.session_lineup) ? ai.session_lineup : [],
     recommended_sessions: typeof ai?.recommended_sessions === "number" ? ai.recommended_sessions : null,
     hook_message: typeof ai?.hook_message === "string" ? ai.hook_message : null,
+    analysis_confidence: typeof ai?.analysis_confidence === "string" ? ai.analysis_confidence : null,
+    analysis_meta: (ai?.analysis_meta && typeof ai.analysis_meta === "object") ? ai.analysis_meta : null,
+  };
+}
+
+function normalizeMetricInterp(value: unknown) {
+  if (typeof value === "string") {
+    return { text: value, evidence: "", confidence: null };
+  }
+  if (!value || typeof value !== "object") {
+    return { text: "", evidence: "", confidence: null };
+  }
+  const v = value as Record<string, unknown>;
+  return {
+    text: typeof v.text === "string" ? v.text : "",
+    evidence: typeof v.evidence === "string" ? v.evidence : "",
+    confidence: typeof v.confidence === "string" ? v.confidence : null,
   };
 }
 
