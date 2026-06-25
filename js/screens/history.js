@@ -96,10 +96,11 @@ registerScreen("history", {
 
   ${r.diff ? buildDiffRow(r.diff) : ""}
 
-  ${hasConsult ? `
   <div class="history-card-footer">
-    <button class="btn-view-detail" data-idx="${idx}">분석 결과 보기 →</button>
-  </div>` : ""}
+    <button class="btn-view-detail" data-idx="${idx}" ${hasConsult ? "" : "disabled"}>
+      ${hasConsult ? "분석 결과 보기 →" : "상담 후 분석"}
+    </button>
+  </div>
 </div>`;
         }).join("");
 
@@ -107,6 +108,10 @@ registerScreen("history", {
         body.querySelectorAll(".btn-view-detail").forEach(btn => {
           btn.addEventListener("click", () => {
             const idx = Number(btn.dataset.idx);
+            if (!records[idx]?.consultation) {
+              alert("이 기록에는 상담 결과가 아직 없어요.");
+              return;
+            }
             State.selectedHistoryRecord = records[idx];
             navigate("history-detail");
           });
