@@ -25,7 +25,6 @@ registerScreen("consultation", {
     <div class="form-section" id="sessions-section" style="display:none">
       <h3 class="section-title">등록 회차</h3>
       <input type="number" id="registered-sessions" class="form-input" placeholder="예: 36" min="1" max="200" />
-      <p class="input-hint">추천 회차: ${State.aiOutput.recommended_sessions}회</p>
     </div>
 
     <div class="form-section">

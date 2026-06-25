@@ -32,6 +32,21 @@ const PRE_INPUT_CONFIG = {
     required: true,
     options: ["주1회", "주2회", "주3회", "주4회이상"],
   },
+  protein_intake: {
+    label: "단백질 섭취 (회원에게 물어보고 선택)",
+    multi: false,
+    options: ["잘 모름·못 챙김", "어느 정도", "제대로"],
+  },
+  carb_intake: {
+    label: "탄수화물",
+    multi: false,
+    options: ["적음", "적절", "과다"],
+  },
+  fat_intake: {
+    label: "지방",
+    multi: false,
+    options: ["적음", "적절", "과다"],
+  },
 };
 
 registerScreen("pre-input", {
@@ -136,7 +151,8 @@ registerScreen("pre-input", {
         return;
       }
       State.preInputs = { ...selected };
-      navigate("persona");
+      State.personas = [];  // 회원 리포트에선 트레이너 페르소나 미사용(페르소나 화면 건너뜀)
+      navigate("capture");
     });
   },
   unmount() {},

@@ -1,0 +1,101 @@
+/* 회원 인바디 리포트 v9 — 검사지 톤(평면, 적/녹/청 판정). 골드 미사용. */
+.rep { max-width: 720px; margin: 0 auto; color: #0F1B17; font-variant-numeric: tabular-nums; }
+.rep b { font-weight: 600; color: #0F1B17; }
+
+/* 히어로 */
+.rep-hero { padding: 24px 20px 20px; }
+.rep-hero-row { display: flex; align-items: center; gap: 20px; }
+.rep-hero-txt { flex: 1; }
+.rep-meta { font-size: 13px; color: #8A958F; margin: 0 0 12px; }
+.rep-h1 { font-size: 26px; font-weight: 700; line-height: 1.3; margin: 0; color: #0F1B17; }
+.rep-hero-sub { font-size: 14px; color: #4A5752; margin: 10px 0 0; line-height: 1.5; }
+.rep-summary { font-size: 15px; color: #4A5752; line-height: 1.6; margin: 14px 0 0; }
+.rep-compare { color: #0F6E56; font-weight: 600; }
+.rep-donut { flex-shrink: 0; text-align: center; }
+.rep-donut-label { font-size: 13px; font-weight: 600; margin: 2px 0 0; }
+.rep-donut-sub { font-size: 12px; color: #4A5752; margin: 0; }
+
+/* 블록 공통 */
+.rep-blk { padding: 22px 20px; border-top: 1px solid #E0E6E2; }
+.rep-sec { font-size: 13px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: #4A5752; margin: 0 0 14px; }
+.rep-mean { font-size: 14.5px; color: #4A5752; line-height: 1.6; margin: 12px 0 0; }
+.rep-lead { font-size: 18px; line-height: 1.55; color: #0F1B17; margin: 0; }
+.rep-foot { font-size: 12px; color: #8A958F; line-height: 1.5; padding: 16px 20px; border-top: 1px solid #E0E6E2; background: #F7F9F8; margin: 0; }
+
+/* '!' 오해 주의 각주 */
+.rep-note { display: flex; gap: 7px; align-items: flex-start; margin-top: 8px; font-size: 12.5px; color: #6B6A60; line-height: 1.5; }
+.rep-note-ico { color: #C9A24B; flex-shrink: 0; }
+.rep-note-list { margin-top: 12px; }
+
+/* 핵심지표 막대 */
+.rep-legend { display: flex; gap: 18px; font-size: 12.5px; color: #8A958F; margin: 0 0 18px; }
+.rep-legend i { display: inline-block; width: 11px; height: 11px; border-radius: 50%; vertical-align: -1px; margin-right: 3px; }
+.rep-legend .dot-cur { background: #C04A2B; }
+.rep-legend .dot-tgt { width: 5px; height: 12px; border-radius: 2px; background: #0F6E56; }
+.rep-metric { margin-bottom: 26px; }
+.rep-metric:last-child { margin-bottom: 0; }
+.rep-metric-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
+.rep-metric-label { font-size: 16px; font-weight: 600; }
+.rep-metric-rt { text-align: right; }
+.rep-metric-val { font-size: 24px; font-weight: 700; }
+.rep-metric-target { font-size: 14px; color: #0F6E56; font-weight: 600; margin-top: 2px; }
+.rep-barwrap { position: relative; padding-top: 30px; }
+.rep-tk { position: relative; height: 15px; border-radius: 999px; display: flex; overflow: hidden; }
+.rep-zn { flex: 1; }
+.rep-zn.zn-low { background: #FCEBEB; }
+.rep-zn.zn-std { background: #E1F5EE; }
+.rep-zn.zn-high { background: #E6F1FB; }
+.rep-conn { position: absolute; height: 5px; top: 5px; background: #5DCAA5; border-radius: 3px; z-index: 0; }
+.rep-mk { position: absolute; top: -5px; width: 24px; height: 24px; border-radius: 50%; border: 4px solid #fff; transform: translateX(-50%); z-index: 3; background: #8A958F; box-shadow: 0 0 0 1px rgba(0,0,0,.06); }
+.rep-mk[data-status="low"] { background: #C04A2B; }
+.rep-mk[data-status="standard"] { background: #0E6B4F; }
+.rep-mk[data-status="high"] { background: #1E6FB0; }
+.rep-tg { position: absolute; top: -5px; width: 6px; height: 25px; background: #0F6E56; transform: translateX(-50%); border-radius: 3px; z-index: 2; }
+.rep-tbadge { position: absolute; top: 0; transform: translateX(-50%); background: #0F6E56; color: #fff; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; z-index: 4; }
+.rep-delta { position: absolute; top: 50%; transform: translate(-50%, -50%); font-size: 11px; font-weight: 600; color: #0F6E56; background: #fff; border: 1px solid #5DCAA5; padding: 1px 6px; border-radius: 999px; white-space: nowrap; z-index: 5; }
+.rep-zl { display: flex; justify-content: space-between; font-size: 12px; color: #8A958F; margin-top: 7px; }
+
+/* 체성분 (v9) */
+.rep-comp-bar { display: flex; height: 38px; border-radius: 9px; overflow: hidden; }
+.rep-comp-seg { height: 100%; }
+.rep-comp-pct { display: flex; margin-top: 7px; }
+.rep-comp-pct > div { text-align: center; font-size: 11.5px; color: #8A958F; }
+.rep-comp-items { margin-top: 16px; }
+.rep-comp-item { display: flex; gap: 11px; align-items: flex-start; margin-bottom: 14px; }
+.rep-comp-dot { margin-top: 2px; font-size: 13px; flex-shrink: 0; }
+.rep-comp-body { flex: 1; }
+.rep-comp-name { font-size: 15px; font-weight: 600; }
+.rep-comp-desc { font-size: 13.5px; color: #4A5752; margin: 1px 0 0; line-height: 1.5; }
+.rep-comp-sum { font-size: 14.5px; color: #0F1B17; margin: 16px 0 0; padding-top: 14px; border-top: 1px solid #E0E6E2; line-height: 1.6; }
+
+/* 매트릭스 안내 */
+.rep-info { display: flex; gap: 12px; align-items: flex-start; background: #EEF2F0; border-radius: 10px; padding: 14px 15px; margin-bottom: 16px; }
+.rep-info-ico { color: #185FA5; font-size: 17px; flex-shrink: 0; line-height: 1.3; }
+.rep-info p { font-size: 14px; color: #4A5752; line-height: 1.55; margin: 0; }
+
+/* 매트릭스 */
+.rep-matrix { display: grid; grid-template-columns: 76px 1fr 1fr; gap: 8px; align-items: center; }
+.rep-chd { text-align: center; font-size: 13px; font-weight: 600; color: #4A5752; padding-bottom: 2px; }
+.rep-rhd { font-size: 14px; font-weight: 600; }
+.rep-rhd.is-mine { color: #0E6B4F; }
+.rep-cell { position: relative; text-align: center; border-radius: 8px; padding: 14px 4px; font-size: 17px; font-weight: 700; }
+.rep-cell.is-mine { outline: 2px solid #0E6B4F; outline-offset: -2px; }
+.rep-cell-tag { display: block; font-size: 10px; font-weight: 600; margin-top: 2px; opacity: .85; }
+
+/* 부위별 근육 */
+.rep-seg { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.rep-seg-n { font-size: 15px; width: 60px; flex-shrink: 0; }
+.rep-seg-bar { flex: 1; height: 11px; background: #EEF2F0; border-radius: 999px; overflow: hidden; }
+.rep-seg-fill { height: 100%; border-radius: 999px; }
+.rep-seg-tag { font-size: 13px; font-weight: 600; padding: 3px 11px; border-radius: 999px; }
+
+/* 내장지방 */
+.rep-vsc { display: flex; gap: 14px; align-items: flex-start; background: #FAEEDA; border-radius: 10px; padding: 16px; }
+.rep-vsc.ok { background: #E1F5EE; }
+.rep-vsc-ico { font-size: 22px; line-height: 1.2; color: #854F0B; flex-shrink: 0; }
+.rep-vsc.ok .rep-vsc-ico { color: #0F6E56; }
+.rep-vsc-t { font-size: 15px; font-weight: 600; color: #633806; margin: 0; }
+.rep-vsc.ok .rep-vsc-t { color: #0F6E56; }
+.rep-vsc-t span { font-weight: 400; }
+.rep-vsc-b { font-size: 13.5px; color: #854F0B; margin: 5px 0 0; line-height: 1.55; }
+.rep-vsc.ok .rep-vsc-b { color: #0F6E56; }
