@@ -40,8 +40,9 @@ Deno.serve(async (req) => {
         inbody_record_id,
         exercise_purpose, exercise_experience, pain_concerns,
         member_tendency, motivation_level, exercise_frequency,
+        protein_intake, carb_intake, fat_intake,
         trainer_personas,
-        ai_summary, ai_comparison_note, ai_session_lineup,
+        ai_summary, ai_comparison_note, ai_report_json, ai_session_lineup,
         ai_hook_message, ai_recommended_sessions,
         pt_registered, registered_sessions, memo,
         created_at

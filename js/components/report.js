@@ -282,6 +282,43 @@ function _learning(pain) {
 </section>`;
 }
 
+function _aiTextSection(title, text) {
+  if (!text) return "";
+  return `
+<section class="rep-blk">
+  <h2 class="rep-sec">${_esc(title)}</h2>
+  <p class="rep-mean">${_esc(text)}</p>
+</section>`;
+}
+
+function _priorityGoals(goals) {
+  if (!Array.isArray(goals) || goals.length === 0) return "";
+  const items = goals.map(g => `
+<div class="rep-comp-item">
+  <span class="rep-comp-dot" style="color:#0E6B4F">●</span>
+  <div class="rep-comp-body">
+    <span class="rep-comp-name">${_esc(g?.title || "")}</span>
+    ${g?.why ? `<p class="rep-comp-desc">${_esc(g.why)}</p>` : ""}
+    ${g?.action ? `<p class="rep-mean">${_esc(g.action)}</p>` : ""}
+  </div>
+</div>`).join("");
+  return `
+<section class="rep-blk">
+  <h2 class="rep-sec">지금 가장 먼저 볼 목표</h2>
+  <div class="rep-comp-items">${items}</div>
+</section>`;
+}
+
+function _aiBulletSection(title, items) {
+  if (!Array.isArray(items) || items.length === 0) return "";
+  const html = items.map(item => _noteHtml(item)).join("");
+  return `
+<section class="rep-blk">
+  <h2 class="rep-sec">${_esc(title)}</h2>
+  ${html}
+</section>`;
+}
+
 // ── 한 줄 진단(상태 기반 결정론) ──────────────────────────────
 function _headline(final, gender) {
   const sm = _band("skeletal_muscle", final.skeletal_muscle, gender).status;
@@ -329,6 +366,7 @@ function renderMemberReport(ai, State) {
 
   <!-- 체성분 -->
   ${_composition(compData, gender)}
+  ${_aiTextSection("AI 체성분 정밀 해석", ai?.body_composition_analysis)}
 
   <!-- 핵심 지표 -->
   <section class="rep-blk">
@@ -343,8 +381,13 @@ function renderMemberReport(ai, State) {
   </section>
 
   ${_visceral(raw)}
-  ${_segmental(raw, pain)}
+  ${ai?.segmental_analysis ? _aiTextSection("부위별 균형 해석", ai.segmental_analysis) : _segmental(raw, pain)}
+  ${_priorityGoals(ai?.priority_goals)}
+  ${_aiTextSection("운동 전략", ai?.exercise_strategy)}
+  ${_aiTextSection("식단 전략", ai?.nutrition_strategy)}
   ${_matrix(State.preInputs)}
+  ${_aiBulletSection("상담 흐름", ai?.trainer_talk_track)}
+  ${_aiBulletSection("설명 시 주의할 점", ai?.caution_notes)}
   ${_learning(pain)}
 
   <p class="rep-foot">이 분석은 ${_esc(State.member?.name || "")}님의 InBody 측정값과 표준 규준을 기준으로 작성되었습니다. 예상 변화는 일반적 추정이며 개인차가 있습니다.</p>

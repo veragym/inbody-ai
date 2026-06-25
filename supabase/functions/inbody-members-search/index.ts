@@ -62,7 +62,7 @@ Deno.serve(async (req) => {
 
     const { data: lastLog } = await supabase
       .from("inbody_consultation_logs")
-      .select("exercise_purpose, exercise_experience, pain_concerns, member_tendency, motivation_level, exercise_frequency, trainer_personas, created_at")
+      .select("exercise_purpose, exercise_experience, pain_concerns, member_tendency, motivation_level, exercise_frequency, protein_intake, carb_intake, fat_intake, trainer_personas, created_at")
       .eq("member_id", member_id)
       .order("created_at", { ascending: false })
       .limit(1)
