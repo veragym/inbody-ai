@@ -268,20 +268,6 @@ function _visceral(raw) {
   <p class="rep-vsc-b">장기 주변에 쌓인 지방이에요. 표준을 넘으면 당뇨·고혈압과 가장 직접적으로 연결됩니다.</p></div></div></section>`;
 }
 
-// ── 배움 pillar ───────────────────────────────────────────────
-function _learning(pain) {
-  const upperPain = (pain || []).filter(p => ["거북목", "말린어깨", "목/어깨", "굽은등", "척추측만"].includes(p));
-  const painPhrase = upperPain.length
-    ? `${_esc(upperPain[0])}이(가) 있어서, 자세를 모른 채 무거운 운동을 하면 어깨·목 통증이 오히려 심해질 수 있어요. `
-    : ((pain || []).length ? `${_esc(pain[0])} 같은 부분이 있어서, 잘못된 자세로 운동하면 오히려 더 나빠질 수 있어요. ` : "");
-  return `
-<section class="rep-blk">
-  <h2 class="rep-sec">가장 중요한 건, 제대로·안전하게</h2>
-  <p class="rep-lead">운동은 <b>얼마나</b>가 아니라 <b>어떻게</b>가 결과를 바꿔요.</p>
-  <p class="rep-mean">${painPhrase}그래서 <b>올바른 움직임 패턴을 먼저 익히고</b> 강도를 조금씩 올리는 게 안전하고 효과도 빨라요. 운동·식단·생활습관을 <b>제대로 배우는 것</b>이 첫걸음이에요.</p>
-</section>`;
-}
-
 function _aiTextSection(title, text) {
   if (!text) return "";
   return `
@@ -447,7 +433,6 @@ function renderMemberReport(ai, State) {
   ${_aiTextSection("운동 전략", ai?.exercise_strategy)}
   ${_aiTextSection("식단 전략", ai?.nutrition_strategy)}
   ${_matrix(State.preInputs)}
-  ${_learning(pain)}
 
   <p class="rep-foot">이 분석은 ${_esc(State.member?.name || "")}님의 InBody 측정값과 표준 규준을 기준으로 작성되었습니다. 예상 변화는 일반적 추정이며 개인차가 있습니다.</p>
 </div>`;
