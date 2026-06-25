@@ -21,6 +21,14 @@ function _noteHtml(text) {
   return `<div class="rep-note"><span class="rep-note-ico" aria-hidden="true">⚠</span><span>${_esc(text)}</span></div>`;
 }
 
+function _briefText(text, max = 74) {
+  const s = String(text || "").replace(/\s+/g, " ").trim();
+  if (!s) return "";
+  const first = s.match(/^(.+?[.!?。]|.+?요\.|.+?다\.)\s/)?.[1] || "";
+  const base = first && first.length <= max ? first : s;
+  return base.length > max ? `${base.slice(0, max - 1).trim()}…` : base;
+}
+
 // ── 체성분 (v9: 막대+막대밖% + 항목설명 + 항목별 '!' + 종합) ───
 const _COMP_ITEMS = [
   { key: "total_body_water", label: "체수분", unit: "L", grad: "linear-gradient(135deg,#9AC2EF,#6FA4E0)", dot: "#185FA5",
@@ -270,28 +278,44 @@ function _visceral(raw) {
 
 function _aiTextSection(title, text) {
   if (!text) return "";
+  const brief = _briefText(text);
   return `
 <section class="rep-blk">
   <h2 class="rep-sec">${_esc(title)}</h2>
-  <p class="rep-mean">${_esc(text)}</p>
+  <details class="rep-reveal">
+    <summary>
+      <span class="rep-reveal-title">${_esc(brief || title)}</span>
+      <span class="rep-reveal-btn">자세히</span>
+    </summary>
+    <p class="rep-mean">${_esc(text)}</p>
+  </details>
 </section>`;
 }
 
 function _priorityGoals(goals) {
   if (!Array.isArray(goals) || goals.length === 0) return "";
-  const items = goals.map(g => `
-<div class="rep-comp-item">
-  <span class="rep-comp-dot" style="color:#0E6B4F">●</span>
-  <div class="rep-comp-body">
-    <span class="rep-comp-name">${_esc(g?.title || "")}</span>
-    ${g?.why ? `<p class="rep-comp-desc">${_esc(g.why)}</p>` : ""}
-    ${g?.action ? `<p class="rep-mean">${_esc(g.action)}</p>` : ""}
-  </div>
-</div>`).join("");
+  const items = goals.map((g, i) => {
+    const title = g?.title || `우선 목표 ${i + 1}`;
+    const why = g?.why || "";
+    const action = g?.action || "";
+    return `
+<details class="rep-goal">
+  <summary>
+    <span class="rep-goal-rank">${i + 1}</span>
+    <span class="rep-goal-main">
+      <span class="rep-goal-title">${_esc(title)}</span>
+      ${why ? `<span class="rep-goal-why">${_esc(_briefText(why, 58))}</span>` : ""}
+    </span>
+    <span class="rep-reveal-btn">보기</span>
+  </summary>
+  ${why ? `<p class="rep-comp-desc"><b>왜 중요해요</b><br>${_esc(why)}</p>` : ""}
+  ${action ? `<p class="rep-mean"><b>어떻게 할까요</b><br>${_esc(action)}</p>` : ""}
+</details>`;
+  }).join("");
   return `
 <section class="rep-blk">
   <h2 class="rep-sec">지금 가장 먼저 볼 목표</h2>
-  <div class="rep-comp-items">${items}</div>
+  <div class="rep-goals">${items}</div>
 </section>`;
 }
 

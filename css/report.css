@@ -68,6 +68,86 @@
 .rep-comp-desc { font-size: 13.5px; color: #4A5752; margin: 1px 0 0; line-height: 1.5; }
 .rep-comp-sum { font-size: 14.5px; color: #0F1B17; margin: 16px 0 0; padding-top: 14px; border-top: 1px solid #E0E6E2; line-height: 1.6; }
 
+/* 핵심 먼저, 상세 펼침 */
+.rep-reveal,
+.rep-goal {
+  border: 1px solid #DCE5E1;
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+}
+.rep-reveal summary,
+.rep-goal summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 14px;
+  cursor: pointer;
+  list-style: none;
+  min-height: 52px;
+}
+.rep-reveal summary::-webkit-details-marker,
+.rep-goal summary::-webkit-details-marker { display: none; }
+.rep-reveal-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #0F1B17;
+}
+.rep-reveal-btn {
+  flex-shrink: 0;
+  border: 1px solid #BFD8CF;
+  color: #0F6E56;
+  background: #F1F8F5;
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.rep-reveal[open] .rep-reveal-btn,
+.rep-goal[open] .rep-reveal-btn { background: #0F6E56; border-color: #0F6E56; color: #fff; }
+.rep-reveal > .rep-mean,
+.rep-goal > .rep-mean,
+.rep-goal > .rep-comp-desc {
+  margin: 0;
+  padding: 0 14px 14px;
+}
+.rep-goals { display: grid; gap: 10px; margin-top: 14px; }
+.rep-goal-rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #0F6E56;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.rep-goal-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+.rep-goal-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0F1B17;
+  line-height: 1.35;
+}
+.rep-goal-why {
+  font-size: 12.5px;
+  color: #6E7A74;
+  line-height: 1.35;
+}
+
 /* 매트릭스 안내 */
 .rep-info { display: flex; gap: 12px; align-items: flex-start; background: #EEF2F0; border-radius: 10px; padding: 14px 15px; margin-bottom: 16px; }
 .rep-info-ico { color: #185FA5; font-size: 17px; flex-shrink: 0; line-height: 1.3; }
