@@ -37,6 +37,33 @@ const SYSTEM_PROMPT = `당신은 InBody 270 체성분 분석 결과지(인쇄물
 
 반드시 위 스키마의 JSON 하나만 출력한다.`;
 
+async function callAnthropicWithFallback(aiReqBase: Record<string, unknown>, models: string[]) {
+  let lastErrorText = "";
+
+  for (const model of models) {
+    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": Deno.env.get("ANTHROPIC_API_KEY")!,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ ...aiReqBase, model }),
+    });
+
+    const text = await resp.text();
+    if (resp.ok) return JSON.parse(text);
+
+    lastErrorText = text;
+    const normalized = text.toLowerCase();
+    if (!normalized.includes("capacity") && !normalized.includes("overloaded") && !normalized.includes("temporarily unavailable")) {
+      break;
+    }
+  }
+
+  throw new Error(lastErrorText || "anthropic_request_failed");
+}
+
 Deno.serve(async (req) => {
   const { error, supabase } = guard(req);
   if (error) return error;
@@ -70,7 +97,6 @@ Deno.serve(async (req) => {
   const media_type = mediaTypeMap[ext] ?? "image/jpeg";
 
   const aiReq = {
-    model: "claude-sonnet-4-6",
     max_tokens: 1500,
     system: SYSTEM_PROMPT,
     messages: [
@@ -87,18 +113,15 @@ Deno.serve(async (req) => {
     ],
   };
 
-  const resp = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "x-api-key": Deno.env.get("ANTHROPIC_API_KEY")!,
-      "anthropic-version": "2023-06-01",
-      "content-type": "application/json",
-    },
-    body: JSON.stringify(aiReq),
-  });
-  if (!resp.ok) return json({ error: "ai_failed", detail: await resp.text() }, 502);
-
-  const ai = await resp.json();
+  let ai;
+  try {
+    ai = await callAnthropicWithFallback(aiReq, [
+      "claude-sonnet-4-6",
+      "claude-haiku-4-5",
+    ]);
+  } catch (err) {
+    return json({ error: "ai_failed", detail: String(err) }, 502);
+  }
   const text = ai.content?.find((b: { type: string }) => b.type === "text")?.text ?? "{}";
 
   // JSON 블록 파싱 (마크다운 코드블록 방어)

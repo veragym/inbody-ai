@@ -1,5 +1,30 @@
 import { guard, json } from "../_shared/guard.ts";
 
+function normalizeAiOutput(ai: Record<string, unknown> | null | undefined) {
+  const metricInterp = (ai?.metric_interp && typeof ai.metric_interp === "object")
+    ? ai.metric_interp as Record<string, unknown>
+    : {};
+  return {
+    summary: typeof ai?.summary === "string" ? ai.summary : "",
+    comparison_note: typeof ai?.comparison_note === "string" ? ai.comparison_note : null,
+    body_composition_analysis: typeof ai?.body_composition_analysis === "string" ? ai.body_composition_analysis : "",
+    metric_interp: {
+      skeletal_muscle: typeof metricInterp.skeletal_muscle === "string" ? metricInterp.skeletal_muscle : "",
+      body_fat_pct: typeof metricInterp.body_fat_pct === "string" ? metricInterp.body_fat_pct : "",
+      bmi: typeof metricInterp.bmi === "string" ? metricInterp.bmi : "",
+    },
+    segmental_analysis: typeof ai?.segmental_analysis === "string" ? ai.segmental_analysis : null,
+    priority_goals: Array.isArray(ai?.priority_goals) ? ai.priority_goals : [],
+    exercise_strategy: typeof ai?.exercise_strategy === "string" ? ai.exercise_strategy : "",
+    nutrition_strategy: typeof ai?.nutrition_strategy === "string" ? ai.nutrition_strategy : "",
+    trainer_talk_track: Array.isArray(ai?.trainer_talk_track) ? ai.trainer_talk_track : [],
+    caution_notes: Array.isArray(ai?.caution_notes) ? ai.caution_notes : [],
+    session_lineup: Array.isArray(ai?.session_lineup) ? ai.session_lineup : [],
+    recommended_sessions: typeof ai?.recommended_sessions === "number" ? ai.recommended_sessions : null,
+    hook_message: typeof ai?.hook_message === "string" ? ai.hook_message : null,
+  };
+}
+
 Deno.serve(async (req) => {
   const { error, supabase } = guard(req);
   if (error) return error;
@@ -50,6 +75,8 @@ Deno.serve(async (req) => {
     return json({ error: "inbody_record_id, member_id, trainer_id required" }, 400);
   }
 
+  const normalizedAi = normalizeAiOutput(ai_output);
+
   const { data, error: dbErr } = await supabase
     .from("inbody_consultation_logs")
     .insert({
@@ -66,12 +93,12 @@ Deno.serve(async (req) => {
       carb_intake: pre_inputs?.carb_intake ?? null,
       fat_intake: pre_inputs?.fat_intake ?? null,
       trainer_personas: personas ?? [],
-      ai_summary: ai_output?.summary ?? null,
-      ai_comparison_note: ai_output?.comparison_note ?? null,
-      ai_report_json: ai_output ?? null,
-      ai_session_lineup: ai_output?.session_lineup ?? null,
-      ai_recommended_sessions: ai_output?.recommended_sessions ?? null,
-      ai_hook_message: ai_output?.hook_message ?? null,
+      ai_summary: normalizedAi.summary || null,
+      ai_comparison_note: normalizedAi.comparison_note,
+      ai_report_json: normalizedAi,
+      ai_session_lineup: normalizedAi.session_lineup,
+      ai_recommended_sessions: normalizedAi.recommended_sessions,
+      ai_hook_message: normalizedAi.hook_message,
       pt_registered: pt_registered ?? null,
       registered_sessions: registered_sessions ?? null,
       memo: memo ?? null,

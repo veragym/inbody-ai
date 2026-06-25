@@ -33,7 +33,43 @@ Deno.serve(async (req) => {
 
     const { data, error: dbErr } = await q;
     if (dbErr) return json({ error: dbErr.message }, 500);
-    return json({ members: data });
+
+    const members = data ?? [];
+    const memberIds = members.map((m) => m.id);
+    let consultationMap: Record<string, unknown> = {};
+    let recordMap: Record<string, unknown> = {};
+
+    if (memberIds.length > 0) {
+      const { data: logs } = await supabase
+        .from("inbody_consultation_logs")
+        .select("member_id, exercise_purpose, exercise_experience, pain_concerns, member_tendency, motivation_level, exercise_frequency, protein_intake, carb_intake, fat_intake, trainer_personas, ai_report_json, created_at")
+        .in("member_id", memberIds)
+        .order("created_at", { ascending: false });
+
+      (logs ?? []).forEach((log) => {
+        const key = log.member_id as string;
+        if (!consultationMap[key]) consultationMap[key] = log;
+      });
+
+      const { data: records } = await supabase
+        .from("inbody_records")
+        .select("member_id, final_weight, final_skeletal_muscle, final_body_fat_mass, final_body_fat_pct, final_inbody_score, measured_at")
+        .in("member_id", memberIds)
+        .order("measured_at", { ascending: false });
+
+      (records ?? []).forEach((record) => {
+        const key = record.member_id as string;
+        if (!recordMap[key]) recordMap[key] = record;
+      });
+    }
+
+    return json({
+      members: members.map((m) => ({
+        ...m,
+        last_consultation: consultationMap[m.id] ?? null,
+        last_record: recordMap[m.id] ?? null,
+      })),
+    });
   }
 
   if (action === "create") {
@@ -62,7 +98,7 @@ Deno.serve(async (req) => {
 
     const { data: lastLog } = await supabase
       .from("inbody_consultation_logs")
-      .select("exercise_purpose, exercise_experience, pain_concerns, member_tendency, motivation_level, exercise_frequency, protein_intake, carb_intake, fat_intake, trainer_personas, created_at")
+      .select("exercise_purpose, exercise_experience, pain_concerns, member_tendency, motivation_level, exercise_frequency, protein_intake, carb_intake, fat_intake, trainer_personas, ai_report_json, created_at")
       .eq("member_id", member_id)
       .order("created_at", { ascending: false })
       .limit(1)

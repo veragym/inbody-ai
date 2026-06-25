@@ -18,6 +18,7 @@ const SYSTEM_PROMPT = `당신은 PT 전문 헬스장 '베라짐'의 베테랑 �
 - inbody_final: { weight, skeletal_muscle, body_fat_mass, body_fat_pct, bmi, inbody_score, total_body_water, protein, minerals, visceral_fat_level }
   (체수분·단백질·무기질은 체성분 구성 비율 해석에 활용. 내장지방은 있을 경우 언급.)
 - inbody_previous: 이전 기록(있으면) — 변화량 계산용, 없으면 null
+- recent_records: 최근 측정 기록 5개까지. 현재/이전뿐 아니라 누적 추세를 읽는 데 사용.
 - pre_inputs: { exercise_purpose[], exercise_experience, pain_concerns[], member_tendency, motivation_level, exercise_frequency, protein_intake, carb_intake, fat_intake }
 - personas: 트레이너 페르소나 배열 (예: ["재활/통증관리형","초보자친화형"])
 
@@ -71,7 +72,86 @@ function pickFinals(r: Record<string, unknown>) {
     protein: raw.protein ?? null,
     minerals: raw.minerals ?? null,
     visceral_fat_level: raw.visceral_fat_level ?? null,
+    segmental_muscle: raw.segmental_muscle ?? null,
+    segmental_fat: raw.segmental_fat ?? null,
+    low_confidence_fields: raw.low_confidence_fields ?? [],
+    measured_date_on_sheet: raw.measured_date_on_sheet ?? null,
   };
+}
+
+function normalizeReport(out: Record<string, unknown>) {
+  const metricInterp = (out.metric_interp && typeof out.metric_interp === "object")
+    ? out.metric_interp as Record<string, unknown>
+    : {};
+  const goals = Array.isArray(out.priority_goals) ? out.priority_goals : [];
+  return {
+    summary: typeof out.summary === "string" ? out.summary : "",
+    comparison_note: typeof out.comparison_note === "string" ? out.comparison_note : null,
+    body_composition_analysis: typeof out.body_composition_analysis === "string" ? out.body_composition_analysis : "",
+    metric_interp: {
+      skeletal_muscle: typeof metricInterp.skeletal_muscle === "string" ? metricInterp.skeletal_muscle : "",
+      body_fat_pct: typeof metricInterp.body_fat_pct === "string" ? metricInterp.body_fat_pct : "",
+      bmi: typeof metricInterp.bmi === "string" ? metricInterp.bmi : "",
+    },
+    segmental_analysis: typeof out.segmental_analysis === "string" ? out.segmental_analysis : null,
+    priority_goals: goals
+      .filter((g) => g && typeof g === "object")
+      .map((g: Record<string, unknown>) => ({
+        title: typeof g.title === "string" ? g.title : "",
+        why: typeof g.why === "string" ? g.why : "",
+        action: typeof g.action === "string" ? g.action : "",
+      }))
+      .filter((g) => g.title || g.why || g.action)
+      .slice(0, 3),
+    exercise_strategy: typeof out.exercise_strategy === "string" ? out.exercise_strategy : "",
+    nutrition_strategy: typeof out.nutrition_strategy === "string" ? out.nutrition_strategy : "",
+    trainer_talk_track: Array.isArray(out.trainer_talk_track)
+      ? out.trainer_talk_track.filter((x) => typeof x === "string").slice(0, 3)
+      : [],
+    caution_notes: Array.isArray(out.caution_notes)
+      ? out.caution_notes.filter((x) => typeof x === "string").slice(0, 4)
+      : [],
+  };
+}
+
+function validateReport(out: Record<string, unknown>) {
+  const r = normalizeReport(out);
+  return !!r.summary && !!r.body_composition_analysis && !!r.metric_interp.skeletal_muscle && !!r.metric_interp.body_fat_pct && !!r.metric_interp.bmi && r.priority_goals.length === 3;
+}
+
+async function callAnthropicWithFallback(aiReqBase: Record<string, unknown>, models: string[]) {
+  let lastErrorText = "";
+
+  for (const model of models) {
+    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": Deno.env.get("ANTHROPIC_API_KEY")!,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ ...aiReqBase, model }),
+    });
+
+    const text = await resp.text();
+    if (resp.ok) {
+      const parsed = JSON.parse(text);
+      const rawText = parsed.content?.find((b: { type: string }) => b.type === "text")?.text ?? "{}";
+      const cleaned = rawText.replace(/```json\s*/gi, "").replace(/```\s*/g, "").trim();
+      const out = JSON.parse(cleaned);
+      if (validateReport(out)) return out;
+      lastErrorText = `invalid_schema:${cleaned}`;
+      continue;
+    }
+
+    lastErrorText = text;
+    const normalized = text.toLowerCase();
+    if (!normalized.includes("capacity") && !normalized.includes("overloaded") && !normalized.includes("temporarily unavailable")) {
+      break;
+    }
+  }
+
+  throw new Error(lastErrorText || "anthropic_request_failed");
 }
 
 Deno.serve(async (req) => {
@@ -107,12 +187,21 @@ Deno.serve(async (req) => {
     .select("*")
     .eq("member_id", member_id)
     .order("measured_at", { ascending: false })
-    .limit(2);
+    .limit(5);
   if (recErr) return json({ error: recErr.message }, 500);
 
   const current = (records ?? []).find((r: Record<string, unknown>) => r.id === inbody_record_id) ?? records?.[0];
   const previous = (records ?? []).find((r: Record<string, unknown>) => r.id !== current?.id) ?? null;
   if (!current) return json({ error: "record_not_found" }, 404);
+  const recent_records = (records ?? []).map((r: Record<string, unknown>) => ({
+    measured_at: r.measured_at ?? null,
+    weight: r.final_weight ?? null,
+    skeletal_muscle: r.final_skeletal_muscle ?? null,
+    body_fat_mass: r.final_body_fat_mass ?? null,
+    body_fat_pct: r.final_body_fat_pct ?? null,
+    bmi: r.final_bmi ?? null,
+    inbody_score: r.final_inbody_score ?? null,
+  }));
 
   // 회원 정보 로드 (성별/생년)
   const { data: member } = await supabase
@@ -127,7 +216,6 @@ Deno.serve(async (req) => {
 
   // 2) Claude Opus 4.6 호출
   const aiReq = {
-    model: "claude-opus-4-6",
     max_tokens: 3800,
     system: SYSTEM_PROMPT,
     messages: [
@@ -137,6 +225,7 @@ Deno.serve(async (req) => {
           member: { gender: member?.gender, age, is_revisit },
           inbody_final: pickFinals(current as Record<string, unknown>),
           inbody_previous: previous ? pickFinals(previous as Record<string, unknown>) : null,
+          recent_records,
           pre_inputs,
           personas,
         }),
@@ -144,18 +233,16 @@ Deno.serve(async (req) => {
     ],
   };
 
-  const resp = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "x-api-key": Deno.env.get("ANTHROPIC_API_KEY")!,
-      "anthropic-version": "2023-06-01",
-      "content-type": "application/json",
-    },
-    body: JSON.stringify(aiReq),
-  });
-  if (!resp.ok) return json({ error: "ai_failed", detail: await resp.text() }, 502);
-
-  const ai = await resp.json();
+  let ai;
+  try {
+    ai = await callAnthropicWithFallback(aiReq, [
+      "claude-opus-4-6",
+      "claude-sonnet-4-6",
+      "claude-haiku-4-5",
+    ]);
+  } catch (err) {
+    return json({ error: "ai_failed", detail: String(err) }, 502);
+  }
   const text = ai.content?.find((b: { type: string }) => b.type === "text")?.text ?? "{}";
 
   const cleaned = text.replace(/```json\s*/gi, "").replace(/```\s*/g, "").trim();
@@ -166,5 +253,5 @@ Deno.serve(async (req) => {
     return json({ error: "ai_bad_json", raw: text }, 502);
   }
 
-  return json(out);
+  return json(normalizeReport(out));
 });

@@ -24,6 +24,33 @@ registerScreen("history-detail", {
 
     document.getElementById("back-btn").addEventListener("click", () => navigate("history"));
 
+    function normalizeAiReport(c) {
+      const report = c.ai_report_json && typeof c.ai_report_json === "object" ? c.ai_report_json : {};
+      const legacy = {
+        summary: c.ai_summary ?? null,
+        comparison_note: c.ai_comparison_note ?? null,
+        session_lineup: c.ai_session_lineup ?? [],
+        recommended_sessions: c.ai_recommended_sessions ?? null,
+        hook_message: c.ai_hook_message ?? null,
+      };
+
+      return {
+        summary: report.summary ?? legacy.summary ?? "",
+        comparison_note: report.comparison_note ?? legacy.comparison_note ?? null,
+        body_composition_analysis: report.body_composition_analysis ?? "",
+        metric_interp: report.metric_interp ?? { skeletal_muscle: "", body_fat_pct: "", bmi: "" },
+        segmental_analysis: report.segmental_analysis ?? null,
+        priority_goals: report.priority_goals ?? [],
+        exercise_strategy: report.exercise_strategy ?? "",
+        nutrition_strategy: report.nutrition_strategy ?? "",
+        trainer_talk_track: report.trainer_talk_track ?? [],
+        caution_notes: report.caution_notes ?? [],
+        session_lineup: report.session_lineup ?? legacy.session_lineup,
+        recommended_sessions: report.recommended_sessions ?? legacy.recommended_sessions,
+        hook_message: report.hook_message ?? legacy.hook_message,
+      };
+    }
+
     const reportState = {
       ...State,
       finalData: {
@@ -48,13 +75,7 @@ registerScreen("history-detail", {
       },
     };
 
-    const ai = c.ai_report_json ?? {
-      summary: c.ai_summary ?? null,
-      comparison_note: c.ai_comparison_note ?? null,
-      session_lineup: c.ai_session_lineup ?? [],
-      recommended_sessions: c.ai_recommended_sessions ?? null,
-      hook_message: c.ai_hook_message ?? null,
-    };
+    const ai = normalizeAiReport(c);
 
     try {
       document.getElementById("detail-content").innerHTML = renderMemberReport(ai, reportState);

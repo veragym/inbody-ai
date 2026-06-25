@@ -100,25 +100,18 @@ registerScreen("member-search", {
 </div>`).join("");
         showNewTrigger();
 
-        // 각 회원의 이전 기록 비동기 로드
         members.forEach(m => {
-          callFn("inbody-members-search", { action: "history", trainer_id: State.trainer.id, member_id: m.id })
-            .then(({ last_record }) => {
-              const badge = document.getElementById(`hist-${m.id}`);
-              if (!badge) return;
-              if (last_record) {
-                const date = new Date(last_record.measured_at).toLocaleDateString("ko-KR", { month: "short", day: "numeric" });
-                badge.textContent = `${date} · ${last_record.final_weight}kg · ${last_record.final_body_fat_pct}%`;
-                badge.classList.add("has-record");
-              } else {
-                badge.textContent = "첫 방문";
-                badge.classList.add("no-record");
-              }
-            })
-            .catch(() => {
-              const badge = document.getElementById(`hist-${m.id}`);
-              if (badge) badge.textContent = "";
-            });
+          const badge = document.getElementById(`hist-${m.id}`);
+          if (!badge) return;
+          const lastRecord = m.last_record;
+          if (lastRecord) {
+            const date = new Date(lastRecord.measured_at).toLocaleDateString("ko-KR", { month: "short", day: "numeric" });
+            badge.textContent = `${date} · ${lastRecord.final_weight}kg · ${lastRecord.final_body_fat_pct}%`;
+            badge.classList.add("has-record");
+          } else {
+            badge.textContent = "첫 방문";
+            badge.classList.add("no-record");
+          }
         });
 
         // 이력 조회 버튼
@@ -158,7 +151,8 @@ registerScreen("member-search", {
         });
 
         resultsEl.querySelectorAll(".member-btn").forEach(btn => {
-          btn.addEventListener("click", async () => {
+          btn.addEventListener("click", () => {
+            const member = members.find(m => String(m.id) === String(btn.dataset.id));
             State.member = {
               id: btn.dataset.id,
               name: btn.dataset.name,
@@ -167,33 +161,26 @@ registerScreen("member-search", {
               phone_last4: btn.dataset.phone || null,
               branch: btn.dataset.branch,
             };
-            // 이전 상담 사전입력 불러와서 pre-fill
-            try {
-              const { last_consultation, last_record } = await callFn("inbody-members-search", {
-                action: "history",
-                trainer_id: State.trainer.id,
-                member_id: State.member.id,
-              });
-              if (last_consultation) {
-                State.preInputs = {
-                  exercise_purpose:    last_consultation.exercise_purpose ?? [],
-                  exercise_experience: last_consultation.exercise_experience ?? null,
-                  pain_concerns:       last_consultation.pain_concerns ?? [],
-                  member_tendency:     last_consultation.member_tendency ?? null,
-                  motivation_level:    last_consultation.motivation_level ?? null,
-                  exercise_frequency:  last_consultation.exercise_frequency ?? null,
-                };
-                State.personas = last_consultation.trainer_personas ?? [];
-              } else {
-                State.preInputs = null;
-                State.personas = [];
-              }
-              State.lastRecord = last_record ?? null;
-            } catch {
+            const lastConsultation = member?.last_consultation ?? null;
+            const lastRecord = member?.last_record ?? null;
+            if (lastConsultation) {
+              State.preInputs = {
+                exercise_purpose:    lastConsultation.exercise_purpose ?? [],
+                exercise_experience: lastConsultation.exercise_experience ?? null,
+                pain_concerns:       lastConsultation.pain_concerns ?? [],
+                member_tendency:     lastConsultation.member_tendency ?? null,
+                motivation_level:    lastConsultation.motivation_level ?? null,
+                exercise_frequency:  lastConsultation.exercise_frequency ?? null,
+                protein_intake:      lastConsultation.protein_intake ?? null,
+                carb_intake:         lastConsultation.carb_intake ?? null,
+                fat_intake:          lastConsultation.fat_intake ?? null,
+              };
+              State.personas = lastConsultation.trainer_personas ?? [];
+            } else {
               State.preInputs = null;
               State.personas = [];
-              State.lastRecord = null;
             }
+            State.lastRecord = lastRecord;
             navigate("pre-input");
           });
         });
