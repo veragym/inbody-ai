@@ -4,7 +4,6 @@ const State = {
   trainer: null,       // { id, name, branch }
   member: null,        // { id, name, gender, birth_year, phone_last4, branch }
   preInputs: null,     // { exercise_purpose[], exercise_experience, pain_concerns[], body_shape_concerns[], member_tendency, motivation_level, exercise_frequency }
-  personas: [],        // string[]
   imagePath: null,     // string (버킷 내 경로)
   ocrData: null,       // OCR 원본 JSON
   finalData: null,     // 트레이너 확정 JSON
@@ -19,7 +18,6 @@ const State = {
     this.trainer = null;
     this.member = null;
     this.preInputs = null;
-    this.personas = [];
     this.imagePath = null;
     this.ocrData = null;
     this.finalData = null;

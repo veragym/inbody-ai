@@ -4,6 +4,7 @@
 registerScreen("result", {
   mount(el) {
     if (!State.inbodyRecordId) { navigate("ocr-confirm"); return; }
+    if (!State.preInputs) { navigate("pre-input"); return; }
 
     el.innerHTML = `
 <div class="screen screen-result">
@@ -34,7 +35,6 @@ registerScreen("result", {
           member_id: State.member.id,
           trainer_id: State.trainer.id,
           pre_inputs: State.preInputs,
-          personas: State.personas,
         });
         State.aiOutput = aiOutput;
         renderReport(aiOutput);

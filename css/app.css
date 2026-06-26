@@ -174,9 +174,9 @@ html, body {
   height: 44px;
   padding: 0 var(--space-4);
   border-radius: var(--radius-pill);
-  border: 1.5px solid var(--persona-border);
-  background: var(--persona-unselected-bg);
-  color: var(--persona-unselected-text);
+  border: 1.5px solid var(--chip-border);
+  background: var(--chip-unselected-bg);
+  color: var(--chip-unselected-text);
   font-size: var(--text-body-size);
   font-family: inherit;
   cursor: pointer;
@@ -184,9 +184,9 @@ html, body {
   white-space: nowrap;
 }
 .chip.selected {
-  background: var(--persona-selected-bg);
-  color: var(--persona-selected-text);
-  border-color: var(--persona-selected-bg);
+  background: var(--chip-selected-bg);
+  color: var(--chip-selected-text);
+  border-color: var(--chip-selected-bg);
 }
 
 /* ══════════════════════════════════════════

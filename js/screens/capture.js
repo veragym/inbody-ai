@@ -25,7 +25,7 @@ registerScreen("capture", {
           <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden-file-input" />
         </label>
         <label class="btn-secondary upload-btn" for="gallery-input">
-          🖼 갤러리 / 파일 선택
+          갤러리 / 파일 선택
           <input type="file" id="gallery-input" accept="image/jpeg,image/png,image/webp" class="hidden-file-input" />
         </label>
       </div>
@@ -46,7 +46,7 @@ registerScreen("capture", {
   </div>
 </div>`;
 
-    document.getElementById("back-btn").addEventListener("click", () => navigate("pre-input"));
+    document.getElementById("back-btn").addEventListener("click", () => navigate(State.preInputBackScreen || "history"));
 
     let selectedFile = null;
 

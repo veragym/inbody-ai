@@ -21,19 +21,19 @@ registerScreen("history", {
 
     document.getElementById("back-btn").addEventListener("click", () => navigate("member-search"));
 
-    document.getElementById("add-record-btn").addEventListener("click", async () => {
-      // 새 인바디 분석 데이터 초기화
-      State.imagePath = null;
-      State.ocrData = null;
-      State.finalData = null;
-      State.isManuallyEdited = false;
-      State.inbodyRecordId = null;
-      State.aiOutput = null;
-      State.preInputs = null;
-      State.personas = [];
-      State.preInputBackScreen = "history";
+    function recordToFinalData(r) {
+      return {
+        weight: r.final_weight,
+        skeletal_muscle: r.final_skeletal_muscle,
+        body_fat_mass: r.final_body_fat_mass,
+        body_fat_pct: r.final_body_fat_pct,
+        bmi: r.final_bmi,
+        inbody_score: r.final_inbody_score,
+        raw: r.final_raw_json ?? {},
+      };
+    }
 
-      // 이전 상담 데이터 조용히 불러와 pre-fill (실패해도 진행)
+    async function loadLastPreInputs() {
       try {
         const { last_consultation, last_record } = await callFn("inbody-members-search", {
           action: "history",
@@ -53,12 +53,39 @@ registerScreen("history", {
             carb_intake:         last_consultation.carb_intake ?? null,
             fat_intake:          last_consultation.fat_intake ?? null,
           };
-          State.personas = last_consultation.trainer_personas ?? [];
         }
         State.lastRecord = last_record ?? null;
-      } catch { /* 실패해도 사전입력 화면으로 진행 */ }
+      } catch { /* 이전 사전정보가 없어도 진행 */ }
+    }
 
+    async function continueRecord(r) {
+      State.imagePath = null;
+      State.ocrData = null;
+      State.finalData = recordToFinalData(r);
+      State.isManuallyEdited = false;
+      State.inbodyRecordId = r.id;
+      State.aiOutput = null;
+      State.preInputs = null;
+      State.preInputBackScreen = "history";
+      await loadLastPreInputs();
       navigate("pre-input");
+    }
+
+    document.getElementById("add-record-btn").addEventListener("click", async () => {
+      // 새 인바디 분석 데이터 초기화
+      State.imagePath = null;
+      State.ocrData = null;
+      State.finalData = null;
+      State.isManuallyEdited = false;
+      State.inbodyRecordId = null;
+      State.aiOutput = null;
+      State.preInputs = null;
+      State.preInputBackScreen = "history";
+
+      // 이전 상담 데이터 조용히 불러와 촬영 후 사전입력에서 pre-fill
+      await loadLastPreInputs();
+
+      navigate("capture");
     });
 
     async function load() {
@@ -104,8 +131,8 @@ registerScreen("history", {
   ${r.diff ? buildDiffRow(r.diff) : ""}
 
   <div class="history-card-footer">
-    <button class="btn-view-detail" data-idx="${idx}" ${hasConsult ? "" : "disabled"}>
-      ${hasConsult ? "분석 결과 보기 →" : "상담 후 분석"}
+    <button class="btn-view-detail" data-idx="${idx}">
+      ${hasConsult ? "분석 결과 보기 →" : "사전입력 후 분석"}
     </button>
     <button class="btn-view-preinfo" data-idx="${idx}" ${hasConsult ? "" : "disabled"}>
       ${hasConsult ? "사전정보" : "사전정보 없음"}
@@ -119,7 +146,7 @@ registerScreen("history", {
           btn.addEventListener("click", () => {
             const idx = Number(btn.dataset.idx);
             if (!records[idx]?.consultation) {
-              alert("이 기록에는 상담 결과가 아직 없어요.");
+              continueRecord(records[idx]);
               return;
             }
             State.selectedHistoryRecord = records[idx];

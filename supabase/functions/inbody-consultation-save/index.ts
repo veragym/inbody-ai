@@ -58,7 +58,6 @@ Deno.serve(async (req) => {
       carb_intake?: string | null;
       fat_intake?: string | null;
     };
-    personas: string[];
     ai_output: {
       summary: string;
       comparison_note: string | null;
@@ -77,7 +76,7 @@ Deno.serve(async (req) => {
 
   const {
     inbody_record_id, member_id, trainer_id,
-    pre_inputs, personas, ai_output,
+    pre_inputs, ai_output,
     pt_registered, registered_sessions, memo,
   } = body;
 
@@ -103,7 +102,6 @@ Deno.serve(async (req) => {
       protein_intake: pre_inputs?.protein_intake ?? null,
       carb_intake: pre_inputs?.carb_intake ?? null,
       fat_intake: pre_inputs?.fat_intake ?? null,
-      trainer_personas: personas ?? [],
       ai_summary: normalizedAi.summary || null,
       ai_comparison_note: normalizedAi.comparison_note,
       ai_report_json: normalizedAi,

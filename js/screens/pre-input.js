@@ -165,8 +165,7 @@ registerScreen("pre-input", {
         return;
       }
       State.preInputs = { ...selected };
-      State.personas = [];  // 회원 리포트에선 트레이너 페르소나 미사용(페르소나 화면 건너뜀)
-      navigate("capture");
+      navigate(State.inbodyRecordId ? "result" : "capture");
     });
   },
   unmount() {},

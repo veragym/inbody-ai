@@ -161,7 +161,6 @@ registerScreen("member-search", {
               branch: btn.dataset.branch,
             };
             State.preInputs = null;
-            State.personas = [];
             State.lastRecord = null;
             State.selectedHistoryRecord = null;
             navigate("history");
@@ -219,10 +218,9 @@ registerScreen("member-search", {
         });
         State.member = { ...member };
         State.preInputs = null;
-        State.personas = [];
         State.lastRecord = null;
         State.preInputBackScreen = "member-search";
-        navigate("pre-input");
+        navigate("capture");
       } catch (e) {
         alert("등록 중 오류가 생겼어요. 다시 시도해주세요.");
         createBtn.disabled = false;

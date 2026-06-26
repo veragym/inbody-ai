@@ -27,12 +27,12 @@
   --status-high:     #1E6FB0;  /* 표준 이상(과다) */
   --status-neutral:  #8A958F;  /* 데이터 없음 */
 
-  /* ---- 1.5 페르소나 칩 ---- */
-  --persona-selected-bg:   #0E6B4F;
-  --persona-selected-text: #FFFFFF;
-  --persona-unselected-bg: #EEF2F0;
-  --persona-unselected-text:#4A5752;
-  --persona-border:        #D7DEDA;
+  /* ---- 1.5 선택 칩 ---- */
+  --chip-selected-bg:   #0E6B4F;
+  --chip-selected-text: #FFFFFF;
+  --chip-unselected-bg: #EEF2F0;
+  --chip-unselected-text:#4A5752;
+  --chip-border:        #D7DEDA;
 
   /* ---- 1.6 보더/디바이더 ---- */
   --border-default: #E0E6E2;

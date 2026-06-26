@@ -158,7 +158,7 @@ registerScreen("ocr-confirm", {
           is_manually_edited: State.isManuallyEdited,
         });
         State.inbodyRecordId = inbody_record_id;
-        navigate("result");
+        navigate("pre-input");
       } catch (e) {
         alert("저장 중 오류가 생겼어요. 다시 시도해주세요.");
         confirmBtn.disabled = false;

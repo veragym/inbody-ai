@@ -71,7 +71,6 @@ registerScreen("consultation", {
           member_id: State.member.id,
           trainer_id: State.trainer.id,
           pre_inputs: State.preInputs,
-          personas: State.personas,
           ai_output: State.aiOutput,
           pt_registered: selectedRegistered,
           registered_sessions: registeredSessions,

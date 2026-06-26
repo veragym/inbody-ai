@@ -62,7 +62,6 @@ const baseInput = {
     carb_intake: "많음",
     fat_intake: "보통",
   },
-  personas: ["초보 코칭형", "통증 관리형"],
 };
 
 test("generates a complete report with deterministic DB/rule evidence", () => {
