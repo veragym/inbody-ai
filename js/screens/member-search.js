@@ -87,8 +87,8 @@ registerScreen("member-search", {
   <button class="member-btn" data-id="${m.id}" data-name="${m.name}"
     data-gender="${m.gender || ""}" data-birth="${m.birth_year || ""}"
     data-phone="${m.phone_last4 || ""}" data-branch="${m.branch}">
-    <span class="member-name">${m.name}</span>
-    <span class="member-meta">${m.gender || "—"} · ${m.birth_year ? (new Date().getFullYear() - m.birth_year) + "세" : "—"} · ${m.phone_last4 ? "***" + m.phone_last4 : "—"}</span>
+    <span class="member-name">${m.name}${m.phone_last4 ? " " + m.phone_last4 : ""}</span>
+    <span class="member-meta">${m.gender || "—"} ${m.birth_year ? (new Date().getFullYear() - m.birth_year) + "세" : ""}</span>
   </button>
   <div class="member-row-actions">
     <span class="member-history-badge" id="hist-${m.id}">기록 확인 중...</span>
