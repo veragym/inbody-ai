@@ -213,67 +213,23 @@ function _scoreDonut(score) {
 </div>`;
 }
 
-// ── 6개월 예상 체지방 매트릭스 (운동빈도 × 단백질) ─────────────
-// 6개월 예상: 체지방 감소(-) / 근육량 증가(+). [단백질 어느정도, 단백질 제대로]
-const _MATRIX_FAT = { "주1회": [-2, -4], "주2회": [-3, -6], "주3회": [-5, -9], "주4회이상": [-7, -12] };
-const _MATRIX_MUSCLE = { "주1회": [1.0, 1.5], "주2회": [1.5, 2.5], "주3회": [2.0, 3.5], "주4회이상": [2.5, 4.5] };
-const _MX_BG = ["#EAF3DE", "#C0DD97", "#97C459", "#639922"];
-
-// 운동 목적 → 매트릭스 종류
-function _goalType(purpose) {
-  const p = purpose || [];
-  const muscle = p.some(x => x.includes("근육") || x.includes("근력") || x.includes("증량"));
-  const fat = p.some(x => x.includes("감량") || x.includes("바디라인"));
-  return (muscle && !fat) ? "muscle" : "fat";
-}
-
-function _matrix(preInputs) {
-  const freq = preInputs?.exercise_frequency;
-  const protein = preInputs?.protein_intake;
-  const proteinCol = protein === "제대로" ? 1 : 0;  // ①모름·못챙김/②어느정도 → 0, ③제대로 → 1
-  const isMuscle = _goalType(preInputs?.exercise_purpose) === "muscle";
-  const data = isMuscle ? _MATRIX_MUSCLE : _MATRIX_FAT;
-  const title = isMuscle ? "얼마나 늘릴 수 있을까 · 6개월 예상 근육량" : "얼마나 달라질 수 있을까 · 6개월 예상 체지방";
-  const fmt = v => `${v > 0 ? "+" : ""}${v}kg`;
-  const intensityOf = mag => Math.min(3, Math.round(mag / (isMuscle ? 1.3 : 3.5)));
-
-  const rows = Object.entries(data).map(([f, vals]) => {
-    const cells = vals.map((v, ci) => {
-      const intensity = intensityOf(Math.abs(v));
-      const isMine = f === freq && ci === proteinCol;
-      const txtColor = intensity >= 3 ? "#fff" : "#173404";
-      return `<div class="rep-cell${isMine ? " is-mine" : ""}" style="background:${_MX_BG[intensity]};color:${txtColor}">${fmt(v)}${isMine ? '<span class="rep-cell-tag">지금 계획</span>' : ""}</div>`;
-    }).join("");
-    return `<div class="rep-rhd${f === freq ? " is-mine" : ""}">${f.replace("이상", "+")}</div>${cells}`;
-  }).join("");
-
-  const carb = preInputs?.carb_intake;
-  const insightParts = [];
-  if (protein && protein !== "제대로") insightParts.push("필요한 단백질량을 잘 못 챙기고");
-  if (carb === "과다") insightParts.push("탄수화물은 과다한");
-  const infoHtml = insightParts.length
-    ? `<div class="rep-info"><span class="rep-info-ico" aria-hidden="true">ⓘ</span><p>지금 ${insightParts.join(", ")} 편이에요. 이것만 알아도 같은 노력으로 결과가 달라져요.</p></div>` : "";
-
-  const currentPlan = freq ? `${freq.replace("이상", "+")} 기준` : "현재 계획 기준";
-  const nutritionHint = protein === "제대로"
-    ? "단백질은 현재 선택을 유지하면서"
-    : "단백질 섭취를 먼저 안정시키면서";
-  const carbHint = carb === "과다"
-    ? "탄수화물 섭취량도 같이 조절해야"
-    : "전체 식사량을 같이 맞춰야";
-  const note = isMuscle
-    ? `${currentPlan}에서는 ${nutritionHint} 동작 정확도와 점진적인 강도 증가를 함께 봐야 해요. 예상 범위는 생활패턴과 회복 상태에 따라 달라질 수 있어요.`
-    : `${currentPlan}에서는 ${nutritionHint} ${carbHint} 체지방 변화가 더 잘 따라와요. 예상 범위는 생활패턴과 회복 상태에 따라 달라질 수 있어요.`;
-
+function _expectedChange(change) {
+  if (!change || typeof change !== "object") return "";
+  const title = _memberText(change.title) || "예상 변화";
+  const current = _memberText(change.current_plan);
+  const improved = _memberText(change.improved_plan);
+  const condition = _memberText(change.key_condition);
+  const caution = _memberText(change.caution);
+  if (!current && !improved && !condition) return "";
   return `
 <section class="rep-blk">
-  <h2 class="rep-sec">${title}</h2>
-  ${infoHtml}
-  <div class="rep-matrix">
-    <div></div><div class="rep-chd">단백질 어느 정도</div><div class="rep-chd">단백질 제대로</div>
-    ${rows}
+  <h2 class="rep-sec">${_esc(title)}</h2>
+  <div class="rep-change-grid">
+    ${current ? `<div class="rep-change-card"><span class="rep-change-k">현재 계획</span><p>${_esc(current)}</p></div>` : ""}
+    ${improved ? `<div class="rep-change-card is-strong"><span class="rep-change-k">개선 계획</span><p>${_esc(improved)}</p></div>` : ""}
   </div>
-  <p class="rep-mean">${note}</p>
+  ${condition ? `<p class="rep-mean"><b>핵심 조건</b><br>${_esc(condition)}</p>` : ""}
+  ${caution ? `<p class="rep-comp-desc">${_esc(caution)}</p>` : ""}
 </section>`;
 }
 
@@ -508,7 +464,7 @@ function renderMemberReport(ai, State) {
   ${_priorityGoals(ai?.priority_goals)}
   ${_aiTextSection("운동 전략", ai?.exercise_strategy)}
   ${_aiTextSection("식단 전략", ai?.nutrition_strategy)}
-  ${_matrix(State.preInputs)}
+  ${_expectedChange(ai?.expected_change)}
 
   <p class="rep-foot">이 분석은 ${_esc(State.member?.name || "")}님의 InBody 측정값과 표준 규준을 기준으로 작성되었습니다. 예상 변화는 일반적 추정이며 개인차가 있습니다.</p>
 </div>`;

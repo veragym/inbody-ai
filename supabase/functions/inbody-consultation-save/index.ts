@@ -17,6 +17,7 @@ function normalizeAiOutput(ai: Record<string, unknown> | null | undefined) {
     priority_goals: Array.isArray(ai?.priority_goals) ? ai.priority_goals : [],
     exercise_strategy: typeof ai?.exercise_strategy === "string" ? ai.exercise_strategy : "",
     nutrition_strategy: typeof ai?.nutrition_strategy === "string" ? ai.nutrition_strategy : "",
+    expected_change: (ai?.expected_change && typeof ai.expected_change === "object") ? ai.expected_change : null,
     analysis_confidence: typeof ai?.analysis_confidence === "string" ? ai.analysis_confidence : null,
     analysis_meta: (ai?.analysis_meta && typeof ai.analysis_meta === "object") ? ai.analysis_meta : null,
   };
@@ -66,6 +67,7 @@ Deno.serve(async (req) => {
       priority_goals?: unknown[];
       exercise_strategy?: string | null;
       nutrition_strategy?: string | null;
+      expected_change?: Record<string, unknown> | null;
     };
     pt_registered: "등록" | "미등록" | "보류";
     registered_sessions?: number;

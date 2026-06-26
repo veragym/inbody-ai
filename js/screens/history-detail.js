@@ -40,6 +40,7 @@ registerScreen("history-detail", {
         priority_goals: report.priority_goals ?? [],
         exercise_strategy: report.exercise_strategy ?? "",
         nutrition_strategy: report.nutrition_strategy ?? "",
+        expected_change: report.expected_change ?? null,
         analysis_confidence: report.analysis_confidence ?? null,
         analysis_meta: report.analysis_meta ?? null,
       };
