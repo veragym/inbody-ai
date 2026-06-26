@@ -1,5 +1,5 @@
 // 회원용 인바디 리포트 v9 컴포넌트
-// 숫자·판정·목표·조정값은 코드+규준(RANGES, judge-bar.js)에서 산출. AI는 해석문장만.
+// 숫자·판정·목표·조정값은 공통 규칙 모듈에서 산출. AI는 해석문장만.
 // PT 권유 없음. '!' 오해주의·항목설명은 정적 상수(사실 기반).
 
 function _esc(s) {
@@ -121,10 +121,9 @@ function _composition(data, gender) {
 </section>`;
 }
 
-// ── 규준 기반 계산 (RANGES = judge-bar.js 전역) ────────────────
+// ── 규준 기반 계산 (analysis_rules.mjs 전역) ────────────────
 function _band(metric, value, gender) {
-  const range = RANGES[metric];
-  const gr = range ? (range[gender] ?? range["default"]) : null;
+  const gr = window.InbodyAnalysisRules?.getMetricRange?.(metric, gender) ?? null;
   if (value == null || !gr) return { status: "neutral", markerPct: 50, std: null };
   const [lo, hi] = gr.standard, min = gr.low, max = gr.high;
   let status, pct;
