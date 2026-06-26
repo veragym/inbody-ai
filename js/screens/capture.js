@@ -21,7 +21,7 @@ registerScreen("capture", {
       <p class="upload-zone-tip">선명하게 찍힌 사진일수록 인식률이 높아요</p>
       <div class="upload-buttons">
         <label class="btn-primary upload-btn" for="camera-input">
-          📷 카메라로 촬영
+          카메라로 촬영
           <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden-file-input" />
         </label>
         <label class="btn-secondary upload-btn" for="gallery-input">

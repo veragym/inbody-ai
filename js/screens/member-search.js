@@ -92,9 +92,6 @@ registerScreen("member-search", {
   </button>
   <div class="member-row-actions">
     <span class="member-history-badge" id="hist-${m.id}">기록 확인 중...</span>
-    <button class="btn-history" data-id="${m.id}" data-name="${m.name}"
-      data-gender="${m.gender || ""}" data-birth="${m.birth_year || ""}"
-      data-phone="${m.phone_last4 || ""}" data-branch="${m.branch}">이력</button>
     <button class="btn-delete" data-id="${m.id}" data-name="${m.name}">삭제</button>
   </div>
 </div>`).join("");
@@ -106,27 +103,12 @@ registerScreen("member-search", {
           const lastRecord = m.last_record;
           if (lastRecord) {
             const date = new Date(lastRecord.measured_at).toLocaleDateString("ko-KR", { month: "short", day: "numeric" });
-            badge.textContent = `${date} · ${lastRecord.final_weight}kg · ${lastRecord.final_body_fat_pct}%`;
+            badge.textContent = `최근 이력 ${date}`;
             badge.classList.add("has-record");
           } else {
             badge.textContent = "첫 방문";
             badge.classList.add("no-record");
           }
-        });
-
-        // 이력 조회 버튼
-        resultsEl.querySelectorAll(".btn-history").forEach(btn => {
-          btn.addEventListener("click", () => {
-            State.member = {
-              id: btn.dataset.id,
-              name: btn.dataset.name,
-              gender: btn.dataset.gender || null,
-              birth_year: btn.dataset.birth ? Number(btn.dataset.birth) : null,
-              phone_last4: btn.dataset.phone || null,
-              branch: btn.dataset.branch,
-            };
-            navigate("history");
-          });
         });
 
         // 삭제 버튼
