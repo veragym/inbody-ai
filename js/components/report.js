@@ -163,8 +163,12 @@ function _reportMetric(metric, value, gender, label, unit, higherBetter, note, i
 
   const connHtml = t ? (() => {
     const a = Math.min(b.markerPct, t.markerPct), w = Math.abs(b.markerPct - t.markerPct);
-    return `<div class="rep-conn" style="left:${a}%;width:${w}%"></div>
-            <div class="rep-delta" style="left:${(a + w / 2)}%">${t.delta > 0 ? "+" : ""}${t.delta}${unit}</div>`;
+    return `<div class="rep-conn" style="left:${a}%;width:${w}%"></div>`;
+  })() : "";
+  const deltaBadge = t ? (() => {
+    const a = Math.min(b.markerPct, t.markerPct), w = Math.abs(b.markerPct - t.markerPct);
+    const deltaPct = Math.max(12, Math.min(88, a + w / 2));
+    return `<div class="rep-delta-row"><span class="rep-delta" style="left:${deltaPct}%">${t.delta > 0 ? "+" : ""}${t.delta}${unit}</span></div>`;
   })() : "";
   const tgtMarker = t ? `<div class="rep-tg" style="left:${t.markerPct}%"></div>` : "";
   const tgtBadge = t ? `<div class="rep-tbadge-row"><span class="rep-tbadge" style="left:${badgePct}%">목표 ${t.target}${unit}</span></div>` : "";
@@ -180,6 +184,7 @@ function _reportMetric(metric, value, gender, label, unit, higherBetter, note, i
     </div>
   </div>
   <div class="rep-barwrap">
+    ${deltaBadge}
     <div class="rep-tk">
       <div class="rep-zn zn-low"></div><div class="rep-zn zn-std"></div><div class="rep-zn zn-high"></div>
       ${tgtMarker}
