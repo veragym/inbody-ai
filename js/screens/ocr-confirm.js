@@ -48,6 +48,32 @@ registerScreen("ocr-confirm", {
 
     let ocrOriginal = {};
 
+    async function ensureLastPreInputs() {
+      if (State.preInputs || !State.member?.id || !State.trainer?.id) return;
+      try {
+        const { last_consultation, last_record } = await callFn("inbody-members-search", {
+          action: "history",
+          trainer_id: State.trainer.id,
+          member_id: State.member.id,
+        });
+        if (last_consultation) {
+          State.preInputs = {
+            exercise_purpose:    last_consultation.exercise_purpose ?? [],
+            exercise_experience: last_consultation.exercise_experience ?? null,
+            pain_concerns:       last_consultation.pain_concerns ?? [],
+            body_shape_concerns: last_consultation.body_shape_concerns ?? [],
+            member_tendency:     last_consultation.member_tendency ?? null,
+            motivation_level:    last_consultation.motivation_level ?? null,
+            exercise_frequency:  last_consultation.exercise_frequency ?? null,
+            protein_intake:      last_consultation.protein_intake ?? null,
+            carb_intake:         last_consultation.carb_intake ?? null,
+            fat_intake:          last_consultation.fat_intake ?? null,
+          };
+        }
+        State.lastRecord = last_record ?? null;
+      } catch { /* 이전 사전정보가 없어도 진행 */ }
+    }
+
     async function runOcr() {
       try {
         const result = await callFn("inbody-ocr-analyze", { image_path: State.imagePath });
@@ -158,6 +184,7 @@ registerScreen("ocr-confirm", {
           is_manually_edited: State.isManuallyEdited,
         });
         State.inbodyRecordId = inbody_record_id;
+        await ensureLastPreInputs();
         navigate("pre-input");
       } catch (e) {
         alert("저장 중 오류가 생겼어요. 다시 시도해주세요.");

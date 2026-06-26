@@ -82,9 +82,8 @@ registerScreen("history", {
       State.preInputs = null;
       State.preInputBackScreen = "history";
 
-      // 이전 상담 데이터 조용히 불러와 촬영 후 사전입력에서 pre-fill
-      await loadLastPreInputs();
-
+      // 이전 상담 데이터는 촬영 화면으로 이동한 뒤 백그라운드에서 pre-fill 준비
+      loadLastPreInputs();
       navigate("capture");
     });
 
