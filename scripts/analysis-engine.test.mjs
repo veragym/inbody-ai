@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { generateRuleAnalysis, validateRuleAnalysis } from "../supabase/functions/_shared/analysis_engine.mjs";
+import { cleanMemberText, getMetricRange } from "../supabase/functions/_shared/analysis_rules.mjs";
 
 const baseInput = {
   member: { gender: "남성", age: 38, is_revisit: true },
@@ -77,6 +78,12 @@ test("generates a complete report with deterministic DB/rule evidence", () => {
   assert.ok(report.rule_engine.signals.some((signal) => signal.code === "visceral_fat_attention"));
   assert.match(report.comparison_note, /골격근량 \+0.7kg/);
   assert.match(report.metric_interp.skeletal_muscle.evidence, /표준 29~37kg/);
+});
+
+test("shares metric ranges and member-facing text cleanup rules", () => {
+  assert.deepEqual(getMetricRange("body_fat_pct", "남성").standard, [10, 20]);
+  assert.deepEqual(getMetricRange("body_fat_pct", "여성").standard, [18, 28]);
+  assert.equal(cleanMemberText("불안형 성향과 스트레스가 있는 회원 성향"), "운동 부담과 스트레스가 있는 현재 상태");
 });
 
 test("keeps output usable when optional history and raw composition fields are missing", () => {

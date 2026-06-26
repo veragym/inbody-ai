@@ -1,35 +1,5 @@
-// 시그니처 컴포넌트: 막대그래프 판정 바
-// 색 + 마커 위치 + 라벨 3중 인코딩 (WCAG AA, 직사광선, 회색조 대응)
-
-// InBody 270 기준 표준 범위 (성별/항목별)
-// ⚠️ 정확한 임상 기준은 트레이너 미팅 후 조정 필요 (05_아키텍처 6절)
-const RANGES = {
-  body_fat_pct: {
-    남: { low: 0, standard: [10, 20], high: 100 },
-    여: { low: 0, standard: [18, 28], high: 100 },
-    default: { low: 0, standard: [10, 25], high: 100 },
-  },
-  bmi: {
-    default: { low: 0, standard: [18.5, 25], high: 50 },
-  },
-  skeletal_muscle: {
-    남: { low: 0, standard: [29, 37], high: 60 },   // kg 기준 성인 남성
-    여: { low: 0, standard: [18, 24], high: 45 },
-    default: { low: 0, standard: [20, 30], high: 60 },
-  },
-  body_fat_mass: {
-    남: { low: 0, standard: [6, 20], high: 60 },
-    여: { low: 0, standard: [10, 26], high: 60 },
-    default: { low: 0, standard: [8, 24], high: 60 },
-  },
-  inbody_score: {
-    default: { low: 0, standard: [70, 90], high: 100 },
-  },
-  weight: {
-    default: { low: 30, standard: [45, 85], high: 150 },
-  },
-};
-
+// Signature component: judgment bar and marker rendering.
+// Metric ranges are owned by supabase/functions/_shared/analysis_rules.mjs.
 const STATUS_LABEL = {
   low: "표준 이하",
   standard: "표준",
@@ -53,10 +23,7 @@ const STATUS_ICON = {
  * @param {string} unit - 단위 (%, kg 등)
  */
 function createJudgeBar(metric, value, gender, label, unit = "") {
-  const range = RANGES[metric];
-  const genderRange = range
-    ? (range[gender] ?? range["default"])
-    : null;
+  const genderRange = window.InbodyAnalysisRules?.getMetricRange?.(metric, gender) ?? null;
 
   let status = "neutral";
   let markerPct = 50; // 기본 중앙

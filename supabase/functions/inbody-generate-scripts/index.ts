@@ -1,6 +1,7 @@
 import { guard, json } from "../_shared/guard.ts";
 import { jsonrepair } from "https://esm.sh/jsonrepair@3.0.0";
 import { generateRuleAnalysis } from "../_shared/analysis_engine.mjs";
+import { cleanMemberText } from "../_shared/analysis_rules.mjs";
 
 const SYSTEM_PROMPT = `당신은 PT 전문 헬스장 '베라짐'의 정밀 체성분 분석 전문가다.
 근골격계, 체형 평가, 운동처방, 운동생리학, 영양, 통증 관리 관점을 통합해서
@@ -107,15 +108,7 @@ function round1(v: number | null) {
 
 function cleanMemberFacingText(value: unknown) {
   if (typeof value !== "string") return "";
-  return value
-    .replace(/불안형\s*성향과\s*스트레스/g, "운동 부담과 스트레스")
-    .replace(/불안형\s*성향/g, "운동 시작 부담")
-    .replace(/결과중심형\s*성향|과정중시형\s*성향|자기주도형\s*성향/g, "운동 접근 방식")
-    .replace(/회원\s*성향/g, "현재 상태")
-    .replace(/불안형|결과중심형|과정중시형|자기주도형|모르겠음/g, "")
-    .replace(/\s*성향/g, "")
-    .replace(/\s{2,}/g, " ")
-    .trim();
+  return cleanMemberText(value);
 }
 
 function buildAnalysisMeta(records: Record<string, unknown>[]) {

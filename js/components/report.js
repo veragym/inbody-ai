@@ -8,15 +8,10 @@ function _esc(s) {
 }
 
 function _memberText(value) {
-  return String(value || "")
-    .replace(/불안형\s*성향과\s*스트레스/g, "운동 부담과 스트레스")
-    .replace(/불안형\s*성향/g, "운동 시작 부담")
-    .replace(/결과중심형\s*성향|과정중시형\s*성향|자기주도형\s*성향/g, "운동 접근 방식")
-    .replace(/회원\s*성향/g, "현재 상태")
-    .replace(/불안형|결과중심형|과정중시형|자기주도형|모르겠음/g, "")
-    .replace(/\s*성향/g, "")
-    .replace(/\s{2,}/g, " ")
-    .trim();
+  if (window.InbodyAnalysisRules?.cleanMemberText) {
+    return window.InbodyAnalysisRules.cleanMemberText(value);
+  }
+  return String(value || '').trim();
 }
 
 // ── 흔한 오해 주의 ('!' 각주) ──────────────────────────────────
