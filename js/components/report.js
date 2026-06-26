@@ -140,10 +140,10 @@ function _target(metric, value, gender, higherBetter) {
   const [lo, hi] = b.std;
   if (higherBetter) {
     if (b.status !== "low") return null;            // 이미 표준 이상이면 목표 표시 안 함
-    return { target: lo, delta: +(lo - value).toFixed(1), dir: "up", markerPct: 42 };
+    return { target: lo, delta: +(lo - value).toFixed(1), dir: "up", markerPct: 33 };
   } else {
     if (b.status !== "high") return null;
-    return { target: hi, delta: +(hi - value).toFixed(1), dir: "down", markerPct: 64 };
+    return { target: hi, delta: +(hi - value).toFixed(1), dir: "down", markerPct: 67 };
   }
 }
 
