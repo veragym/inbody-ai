@@ -8,7 +8,7 @@
 .rep-hero-txt { flex: 1; }
 .rep-meta { font-size: 13px; color: #8A958F; margin: 0 0 12px; }
 .rep-h1 { font-size: 26px; font-weight: 700; line-height: 1.3; margin: 0; color: #0F1B17; }
-.rep-hero-sub { font-size: 14px; color: #4A5752; margin: 10px 0 0; line-height: 1.5; }
+.rep-hero-sub { font-size: 15px; color: #4A5752; margin: 10px 0 0; line-height: 1.5; }
 .rep-summary { font-size: 15px; color: #4A5752; line-height: 1.6; margin: 14px 0 0; }
 .rep-compare { color: #0F6E56; font-weight: 600; }
 .rep-donut { flex-shrink: 0; text-align: center; }
@@ -18,17 +18,17 @@
 /* 블록 공통 */
 .rep-blk { padding: 22px 20px; border-top: 1px solid #E0E6E2; }
 .rep-sec { font-size: 13px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: #4A5752; margin: 0 0 14px; }
-.rep-mean { font-size: 14.5px; color: #4A5752; line-height: 1.6; margin: 12px 0 0; }
+.rep-mean { font-size: 15px; color: #4A5752; line-height: 1.6; margin: 12px 0 0; }
 .rep-lead { font-size: 18px; line-height: 1.55; color: #0F1B17; margin: 0; }
 .rep-foot { font-size: 12px; color: #8A958F; line-height: 1.5; padding: 16px 20px; border-top: 1px solid #E0E6E2; background: #F7F9F8; margin: 0; }
 
 /* '!' 오해 주의 각주 */
-.rep-note { display: flex; gap: 7px; align-items: flex-start; margin-top: 8px; font-size: 12.5px; color: #6B6A60; line-height: 1.5; }
+.rep-note { display: flex; gap: 7px; align-items: flex-start; margin-top: 8px; font-size: 13px; color: #6B6A60; line-height: 1.5; }
 .rep-note-ico { color: #C9A24B; flex-shrink: 0; }
 .rep-note-list { margin-top: 12px; }
 
 /* 핵심지표 막대 */
-.rep-legend { display: flex; gap: 18px; font-size: 12.5px; color: #8A958F; margin: 0 0 18px; }
+.rep-legend { display: flex; gap: 18px; font-size: 13px; color: #8A958F; margin: 0 0 18px; }
 .rep-legend i { display: inline-block; width: 11px; height: 11px; border-radius: 50%; vertical-align: -1px; margin-right: 3px; }
 .rep-legend .dot-cur { background: #C04A2B; }
 .rep-legend .dot-tgt { width: 5px; height: 12px; border-radius: 2px; background: #0F6E56; }
@@ -59,14 +59,14 @@
 .rep-comp-bar { display: flex; height: 38px; border-radius: 9px; overflow: hidden; }
 .rep-comp-seg { height: 100%; }
 .rep-comp-pct { display: flex; margin-top: 7px; }
-.rep-comp-pct > div { text-align: center; font-size: 11.5px; color: #8A958F; }
+.rep-comp-pct > div { text-align: center; font-size: 12px; color: #8A958F; }
 .rep-comp-items { margin-top: 16px; }
 .rep-comp-item { display: flex; gap: 11px; align-items: flex-start; margin-bottom: 14px; }
 .rep-comp-dot { margin-top: 2px; font-size: 13px; flex-shrink: 0; }
 .rep-comp-body { flex: 1; }
 .rep-comp-name { font-size: 15px; font-weight: 600; }
-.rep-comp-desc { font-size: 13.5px; color: #4A5752; margin: 1px 0 0; line-height: 1.5; }
-.rep-comp-sum { font-size: 14.5px; color: #0F1B17; margin: 16px 0 0; padding-top: 14px; border-top: 1px solid #E0E6E2; line-height: 1.6; }
+.rep-comp-desc { font-size: 14px; color: #4A5752; margin: 1px 0 0; line-height: 1.5; }
+.rep-comp-sum { font-size: 15px; color: #0F1B17; margin: 16px 0 0; padding-top: 14px; border-top: 1px solid #E0E6E2; line-height: 1.6; }
 
 /* 핵심 먼저, 상세 펼침 */
 .rep-reveal,
@@ -143,7 +143,7 @@
   line-height: 1.35;
 }
 .rep-goal-why {
-  font-size: 12.5px;
+  font-size: 13px;
   color: #6E7A74;
   line-height: 1.35;
 }
@@ -151,16 +151,41 @@
 /* 매트릭스 안내 */
 .rep-info { display: flex; gap: 12px; align-items: flex-start; background: #EEF2F0; border-radius: 10px; padding: 14px 15px; margin-bottom: 16px; }
 .rep-info-ico { color: #185FA5; font-size: 17px; flex-shrink: 0; line-height: 1.3; }
-.rep-info p { font-size: 14px; color: #4A5752; line-height: 1.55; margin: 0; }
+.rep-info p { font-size: 15px; color: #4A5752; line-height: 1.55; margin: 0; }
 
 /* 매트릭스 */
-.rep-matrix { display: grid; grid-template-columns: 76px 1fr 1fr; gap: 8px; align-items: center; }
+.rep-matrix { display: grid; grid-template-columns: 76px 1fr 1fr; gap: 8px; align-items: stretch; }
 .rep-chd { text-align: center; font-size: 13px; font-weight: 600; color: #4A5752; padding-bottom: 2px; }
-.rep-rhd { font-size: 14px; font-weight: 600; }
+.rep-rhd { display: flex; align-items: center; font-size: 14px; font-weight: 600; }
 .rep-rhd.is-mine { color: #0E6B4F; }
-.rep-cell { position: relative; text-align: center; border-radius: 8px; padding: 14px 4px; font-size: 17px; font-weight: 700; }
+.rep-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 0;
+  height: 56px;
+  text-align: center;
+  border-radius: 8px;
+  padding: 0 4px;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.1;
+}
 .rep-cell.is-mine { outline: 2px solid #0E6B4F; outline-offset: -2px; }
-.rep-cell-tag { display: block; font-size: 10px; font-weight: 600; margin-top: 2px; opacity: .85; }
+.rep-cell-tag {
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  transform: translateX(-50%);
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  opacity: .85;
+  white-space: nowrap;
+}
 
 /* 부위별 근육 */
 .rep-seg { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
@@ -177,5 +202,5 @@
 .rep-vsc-t { font-size: 15px; font-weight: 600; color: #633806; margin: 0; }
 .rep-vsc.ok .rep-vsc-t { color: #0F6E56; }
 .rep-vsc-t span { font-weight: 400; }
-.rep-vsc-b { font-size: 13.5px; color: #854F0B; margin: 5px 0 0; line-height: 1.55; }
+.rep-vsc-b { font-size: 14px; color: #854F0B; margin: 5px 0 0; line-height: 1.55; }
 .rep-vsc.ok .rep-vsc-b { color: #0F6E56; }
