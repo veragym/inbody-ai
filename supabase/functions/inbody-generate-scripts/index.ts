@@ -1,5 +1,6 @@
 import { guard, json } from "../_shared/guard.ts";
 import { jsonrepair } from "https://esm.sh/jsonrepair@3.0.0";
+import { generateRuleAnalysis } from "../_shared/analysis_engine.mjs";
 
 const SYSTEM_PROMPT = `당신은 PT 전문 헬스장 '베라짐'의 정밀 체성분 분석 전문가다.
 근골격계, 체형 평가, 운동처방, 운동생리학, 영양, 통증 관리 관점을 통합해서
@@ -340,6 +341,16 @@ Deno.serve(async (req) => {
   const currentYear = new Date().getFullYear();
   const age = member?.birth_year ? currentYear - member.birth_year : null;
   const is_revisit = previous !== null;
+  const ruleContext = {
+    member: { gender: member?.gender, age, is_revisit },
+    inbody_final: pickFinals(current as Record<string, unknown>),
+    inbody_previous: previous ? pickFinals(previous as Record<string, unknown>) : null,
+    recent_records,
+    analysis_meta,
+    pre_inputs,
+    personas,
+  };
+  const ruleReport = generateRuleAnalysis(ruleContext);
 
   // 2) Claude Opus 4.6 호출
   const aiReq = {
@@ -349,13 +360,8 @@ Deno.serve(async (req) => {
       {
         role: "user",
         content: JSON.stringify({
-          member: { gender: member?.gender, age, is_revisit },
-          inbody_final: pickFinals(current as Record<string, unknown>),
-          inbody_previous: previous ? pickFinals(previous as Record<string, unknown>) : null,
-          recent_records,
-          analysis_meta,
-          pre_inputs,
-          personas,
+          ...ruleContext,
+          rule_analysis: ruleReport,
         }),
       },
     ],
@@ -368,11 +374,17 @@ Deno.serve(async (req) => {
       "claude-haiku-4-5",
     ]);
   } catch (err) {
-    return json({ error: "ai_failed", detail: String(err) }, 502);
+    return json({
+      ...ruleReport,
+      analysis_meta,
+      ai_fallback: true,
+      ai_error: String(err),
+    });
   }
 
   return json({
     ...normalizeReport(ai),
     analysis_meta,
+    rule_engine: ruleReport.rule_engine,
   });
 });
