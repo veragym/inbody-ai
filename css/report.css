@@ -14,7 +14,9 @@
 .rep-donut { flex-shrink: 0; text-align: center; }
 .rep-donut-label { font-size: 13px; font-weight: 600; margin: 2px 0 0; }
 .rep-donut-sub { font-size: 12px; color: #4A5752; margin: 0; }
-.rep-chipbar { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-top: 18px; }
+.rep-keynums { background: #F7FAF8; }
+.rep-keynums .rep-sec { margin-bottom: 12px; }
+.rep-chipbar { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
 .rep-chip { border: 1px solid #DCE5E1; border-radius: 8px; background: #F7FAF8; padding: 10px 8px; text-align: center; }
 .rep-chip-label { display: block; font-size: 12px; font-weight: 700; color: #6E7A74; line-height: 1.2; }
 .rep-chip-value { display: block; margin-top: 4px; font-size: 16px; font-weight: 800; color: #0F1B17; line-height: 1.15; }

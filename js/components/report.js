@@ -50,11 +50,14 @@ function _metricChips(final, raw) {
     { label: "내장지방", value: raw?.visceral_fat_level, unit: "레벨" },
   ].filter(c => c.value != null && c.value !== "");
   if (!chips.length) return "";
-  return `<div class="rep-chipbar">${chips.map(c => `
+  return `<section class="rep-blk rep-keynums">
+  <h2 class="rep-sec">핵심 수치</h2>
+  <div class="rep-chipbar">${chips.map(c => `
 <div class="rep-chip">
   <span class="rep-chip-label">${_esc(c.label)}</span>
   <span class="rep-chip-value">${_esc(c.value)}${c.unit ? _esc(c.unit) : ""}</span>
-</div>`).join("")}</div>`;
+</div>`).join("")}</div>
+</section>`;
 }
 
 // ── 체성분 (v9: 막대+막대밖% + 항목설명 + 항목별 '!' + 종합) ───
@@ -238,9 +241,16 @@ function _matrix(preInputs) {
   const infoHtml = insightParts.length
     ? `<div class="rep-info"><span class="rep-info-ico" aria-hidden="true">ⓘ</span><p>지금 ${insightParts.join(", ")} 편이에요. 이것만 알아도 같은 노력으로 결과가 달라져요.</p></div>` : "";
 
+  const currentPlan = freq ? `${freq.replace("이상", "+")} 기준` : "현재 계획 기준";
+  const nutritionHint = protein === "제대로"
+    ? "단백질은 현재 선택을 유지하면서"
+    : "단백질 섭취를 먼저 안정시키면서";
+  const carbHint = carb === "과다"
+    ? "탄수화물 섭취량도 같이 조절해야"
+    : "전체 식사량을 같이 맞춰야";
   const note = isMuscle
-    ? "더 자주 운동하고 단백질을 <b>제대로</b> 챙길수록 근육이 더 잘 붙어요. 근육 증가는 특히 <b>단백질 섭취</b>와 <b>올바른 자세</b>에 크게 좌우돼요. 꾸준히 했을 때의 일반적 예상 범위이며 개인차가 있어요."
-    : "더 자주 운동하고 단백질을 <b>제대로</b> 챙길수록 결과가 커져요. 단, 같은 횟수라도 <b>자세가 맞아야</b> 이 수치가 나오고, 탄수화물과 전체 식사량도 함께 줄여야 체지방이 빠져요. 꾸준히 했을 때의 일반적 예상 범위이며 개인차가 있어요.";
+    ? `${currentPlan}에서는 ${nutritionHint} 동작 정확도와 점진적인 강도 증가를 함께 봐야 해요. 예상 범위는 생활패턴과 회복 상태에 따라 달라질 수 있어요.`
+    : `${currentPlan}에서는 ${nutritionHint} ${carbHint} 체지방 변화가 더 잘 따라와요. 예상 범위는 생활패턴과 회복 상태에 따라 달라질 수 있어요.`;
 
   return `
 <section class="rep-blk">
@@ -461,13 +471,13 @@ function renderMemberReport(ai, State) {
     ${_noteHtml(MISCONCEPTIONS.inbody_score)}
     ${ai?.summary ? `<p class="rep-summary">${_esc(_memberText(ai.summary))}</p>` : ""}
     ${ai?.comparison_note ? `<p class="rep-summary rep-compare">${_esc(_memberText(ai.comparison_note))}</p>` : ""}
-    ${_metricChips(final, raw)}
   </section>
 
   <!-- 체성분 -->
   ${_composition(compData, gender)}
   ${_aiTextSection("AI 체성분 정밀 해석", ai?.body_composition_analysis)}
   ${_analysisMetaSection(ai?.analysis_meta)}
+  ${_metricChips(final, raw)}
 
   <!-- 핵심 지표 -->
   <section class="rep-blk">
