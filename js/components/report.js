@@ -393,6 +393,24 @@ function _analysisMetaSection(meta) {
 </section>`;
 }
 
+function _reportQualitySection(ai) {
+  const quality = ai?.report_quality;
+  if (!quality || typeof quality !== "object") return "";
+  const checks = Array.isArray(quality.checks) ? quality.checks : [];
+  const failed = checks.filter(c => c && c.pass === false).map(c => c.code);
+  const source = ai?.ai_fallback ? "룰 기반 보강" : "AI 분석";
+  const level = quality.level === "high" ? "높음" : quality.level === "medium" ? "보통" : "확인 필요";
+  const failedText = failed.length
+    ? `<p class="rep-compare">추가 확인 항목: ${_esc(failed.join(", "))}</p>`
+    : `<p class="rep-compare">핵심 수치와 사전정보가 리포트에 반영됐어요.</p>`;
+  return `
+<section class="rep-blk rep-quality">
+  <h2 class="rep-sec">분석 품질</h2>
+  <p class="rep-summary">${_esc(source)} · 반영도 ${_esc(String(quality.score ?? "-"))}점 · ${_esc(level)}</p>
+  ${failedText}
+</section>`;
+}
+
 function _deltaText(v, unit) {
   if (v == null) return "비교 불가";
   const sign = v > 0 ? "+" : "";
@@ -411,6 +429,19 @@ function _splitConcerns(preInputs) {
 }
 
 // ── 한 줄 진단(상태 기반 결정론) ──────────────────────────────
+function _stableHash(value) {
+  const s = String(value ?? "");
+  let hash = 0;
+  for (let i = 0; i < s.length; i++) {
+    hash = ((hash << 5) - hash + s.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash);
+}
+
+function _variant(seed, items) {
+  return items[_stableHash(seed) % items.length];
+}
+
 function _headline(final, gender, preInputs) {
   const sm = _band("skeletal_muscle", final.skeletal_muscle, gender).status;
   const bf = _band("body_fat_pct", final.body_fat_pct, gender).status;
@@ -442,11 +473,42 @@ function _heroSub(final, gender, preInputs) {
 }
 
 // ── 메인: 회원 리포트 렌더 ────────────────────────────────────
+function _headlineVariant(final, gender, preInputs, seed) {
+  const sm = _band("skeletal_muscle", final.skeletal_muscle, gender).status;
+  const bf = _band("body_fat_pct", final.body_fat_pct, gender).status;
+  const goals = Array.isArray(preInputs?.exercise_purpose) ? preInputs.exercise_purpose : [];
+  const { pain, shape } = _splitConcerns(preInputs);
+  const muscleLow = sm === "low";
+  const fatHigh = bf === "high";
+  if (goals.includes("근육량증가/근력향상") && muscleLow) return _variant(seed + "muscle-goal", ["근육을 채우는 전략이<br>가장 먼저 필요해요", "근력 목표는 지금<br>골격근량 보강부터 봐야 해요", "근육 기반을 먼저 세워야<br>다음 변화가 쉬워져요"]);
+  if (goals.includes("바디라인다듬기") && fatHigh) return _variant(seed + "line-goal", ["라인 변화는 체지방과<br>근육 균형에서 시작해요", "바디라인 목표는 지금<br>체지방률 관리가 핵심이에요", "라인을 다듬으려면<br>체지방과 근육을 같이 봐야 해요"]);
+  if (shape.length && fatHigh) return _variant(seed + "shape-fat", [`${_esc(shape[0])} 고민은<br>체지방률과 함께 봐야 해요`, `${_esc(shape[0])} 라인은<br>현재 체성분과 연결해 볼게요`, `${_esc(shape[0])} 변화는<br>라인과 자세 균형을 같이 봐야 해요`]);
+  if (pain.length && muscleLow) return _variant(seed + "pain-muscle", [`${_esc(pain[0])} 부담을 줄이려면<br>근육 지지가 먼저예요`, `${_esc(pain[0])} 불편감은<br>강도보다 지지력이 중요해요`, `${_esc(pain[0])}은<br>자세와 근력 기준으로 조절해요`]);
+  if (muscleLow && fatHigh) return _variant(seed + "muscle-fat", ["근육은 채우고<br>체지방은 낮출 단계예요", "감량보다 먼저<br>근육 보존 전략이 필요해요", "체지방 관리와 근육 보강을<br>같이 가져가야 해요"]);
+  if (fatHigh) return _variant(seed + "fat", ["체지방 관리가<br>우선 과제예요", "현재 변화의 출발점은<br>체지방률 관리예요", "체지방률을 기준으로<br>운동과 식단을 맞출게요"]);
+  if (muscleLow) return _variant(seed + "muscle", ["근육량 보강이<br>우선 과제예요", "지금은 근력 기반을<br>먼저 세울 타이밍이에요", "골격근량을 기준으로<br>운동 방향을 잡아야 해요"]);
+  if (bf === "low") return _variant(seed + "low-fat", ["체지방이 표준보다<br>낮은 편이에요", "감량보다 회복과 균형을<br>먼저 볼 상태예요", "지금은 체지방을 더 낮추기보다<br>컨디션 균형이 중요해요"]);
+  return _variant(seed + "balanced", ["전반적으로 균형 잡힌<br>몸 상태예요", "현재 균형을 유지하면서<br>다음 변화를 보면 돼요", "큰 흐름은 안정적이고<br>세부 조정이 필요한 상태예요"]);
+}
+
+function _heroSubVariant(final, gender, preInputs, seed) {
+  const sm = _band("skeletal_muscle", final.skeletal_muscle, gender).status;
+  const bf = _band("body_fat_pct", final.body_fat_pct, gender).status;
+  const goals = Array.isArray(preInputs?.exercise_purpose) ? preInputs.exercise_purpose : [];
+  const { pain, shape } = _splitConcerns(preInputs);
+  if (pain.length) return _variant(seed + "pain-sub", [`통증 고민(${_esc(pain.join(", "))})은 운동 강도와 자세 조절 기준으로만 반영했어요.`, `${_esc(pain.join(", "))} 불편감은 진단이 아니라 운동 범위와 강도 조절 기준으로 봤어요.`]);
+  if (shape.length) return _variant(seed + "shape-sub", [`체형 고민(${_esc(shape.join(", "))})은 통증이 아니라 라인과 자세 균형 관점으로 봤어요.`, `${_esc(shape.join(", "))} 고민은 부위만 보지 않고 체성분과 자세 균형을 함께 봤어요.`]);
+  if (goals.length) return _variant(seed + "goal-sub", [`${_esc(goals[0])} 목표에 맞춰 현재 지표의 우선순위를 잡았어요.`, `${_esc(goals[0])} 목표를 기준으로 운동과 식단의 먼저 볼 지점을 정리했어요.`]);
+  if (sm === "low" || bf === "high") return _variant(seed + "metric-sub", ["지금 수치는 평가가 아니라 다음 계획을 정하는 기준이에요.", "현재 지표를 기준으로 무리하지 않는 변화 순서를 잡았어요."]);
+  return _variant(seed + "stable-sub", ["현재 균형을 유지하면서 다음 변화 방향을 확인하면 됩니다.", "큰 흐름은 안정적이라 세부 목표를 정해 이어가면 됩니다."]);
+}
+
 function renderMemberReport(ai, State) {
   const final = State.finalData || {};
   const gender = State.member?.gender;
   const raw = final.raw || {};
   const { pain, shape } = _splitConcerns(State.preInputs);
+  const reportSeed = `${State.member?.id || State.member?.name || ""}:${State.inbodyRecordId || final.weight || ""}`;
 
   const compData = {
     total_body_water: raw.total_body_water ?? null,
@@ -463,8 +525,8 @@ function renderMemberReport(ai, State) {
     <div class="rep-hero-row">
       <div class="rep-hero-txt">
         <p class="rep-meta">${_esc(State.member?.name || "")} · ${_esc(gender || "")}${State.member?.birth_year ? " " + (new Date().getFullYear() - State.member.birth_year) + "세" : ""} · ${_esc(State.member?.branch || "")}</p>
-        <h1 class="rep-h1">${_headline(final, gender, State.preInputs)}</h1>
-        <p class="rep-hero-sub">${_heroSub(final, gender, State.preInputs)}</p>
+        <h1 class="rep-h1">${_headlineVariant(final, gender, State.preInputs, reportSeed)}</h1>
+        <p class="rep-hero-sub">${_heroSubVariant(final, gender, State.preInputs, reportSeed)}</p>
       </div>
       ${_scoreDonut(final.inbody_score)}
     </div>
@@ -496,6 +558,7 @@ function renderMemberReport(ai, State) {
   ${_aiTextSection("운동 전략", ai?.exercise_strategy)}
   ${_aiTextSection("식단 전략", ai?.nutrition_strategy)}
   ${_expectedChange(ai?.expected_change)}
+  ${_reportQualitySection(ai)}
 
   <p class="rep-foot">이 분석은 ${_esc(State.member?.name || "")}님의 InBody 측정값과 표준 규준을 기준으로 작성되었습니다. 예상 변화는 일반적 추정이며 개인차가 있습니다.</p>
 </div>`;

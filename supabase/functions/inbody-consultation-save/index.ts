@@ -20,6 +20,8 @@ function normalizeAiOutput(ai: Record<string, unknown> | null | undefined) {
     expected_change: (ai?.expected_change && typeof ai.expected_change === "object") ? ai.expected_change : null,
     analysis_confidence: typeof ai?.analysis_confidence === "string" ? ai.analysis_confidence : null,
     analysis_meta: (ai?.analysis_meta && typeof ai.analysis_meta === "object") ? ai.analysis_meta : null,
+    ai_fallback: ai?.ai_fallback === true,
+    report_quality: (ai?.report_quality && typeof ai.report_quality === "object") ? ai.report_quality : null,
   };
 }
 

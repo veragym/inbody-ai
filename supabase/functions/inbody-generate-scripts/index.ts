@@ -2,6 +2,7 @@ import { guard, json } from "../_shared/guard.ts";
 import { jsonrepair } from "https://esm.sh/jsonrepair@3.0.0";
 import { generateRuleAnalysis } from "../_shared/analysis_engine.mjs";
 import { cleanMemberText } from "../_shared/analysis_rules.mjs";
+import { assessReportQuality, isReportQualityAcceptable } from "../_shared/report_quality.mjs";
 
 const SYSTEM_PROMPT = `당신은 PT 전문 헬스장 '베라짐'의 정밀 체성분 분석 전문가다.
 근골격계, 체형 평가, 운동처방, 운동생리학, 영양, 통증 관리 관점을 통합해서
@@ -228,7 +229,7 @@ function validateReport(out: Record<string, unknown>) {
     && !!r.expected_change?.improved_plan;
 }
 
-async function callAnthropicWithFallback(aiReqBase: Record<string, unknown>, models: string[]) {
+async function callAnthropicWithFallback(aiReqBase: Record<string, unknown>, models: string[], qualityContext: Record<string, unknown>) {
   let lastErrorText = "";
 
   for (const model of models) {
@@ -254,8 +255,16 @@ async function callAnthropicWithFallback(aiReqBase: Record<string, unknown>, mod
         } catch {
           out = JSON.parse(jsonrepair(cleaned));
         }
-        if (validateReport(out)) return out;
-        lastErrorText = `invalid_schema:${cleaned}`;
+        if (!validateReport(out)) {
+          lastErrorText = `invalid_schema:${cleaned}`;
+          continue;
+        }
+        const normalized = normalizeReport(out);
+        const quality = assessReportQuality(qualityContext, normalized, `ai:${model}`);
+        if (isReportQualityAcceptable(quality)) {
+          return { out, quality };
+        }
+        lastErrorText = `invalid_quality:${JSON.stringify(quality)}`;
         continue;
       } catch (err) {
         lastErrorText = `parse_failed:${String(err)}`;
@@ -358,24 +367,29 @@ Deno.serve(async (req) => {
     ],
   };
 
-  let ai;
+  let aiResult;
   try {
-    ai = await callAnthropicWithFallback(aiReq, [
+    aiResult = await callAnthropicWithFallback(aiReq, [
       "claude-sonnet-4-6",
       "claude-haiku-4-5",
-    ]);
+    ], ruleContext as Record<string, unknown>);
   } catch (err) {
+    const fallbackQuality = assessReportQuality(ruleContext, ruleReport, "rule:fallback");
     return json({
       ...ruleReport,
       analysis_meta,
       ai_fallback: true,
       ai_error: String(err),
+      report_quality: fallbackQuality,
     });
   }
 
+  const normalizedAi = normalizeReport(aiResult.out);
   return json({
-    ...normalizeReport(ai),
+    ...normalizedAi,
     analysis_meta,
     rule_engine: ruleReport.rule_engine,
+    ai_fallback: false,
+    report_quality: aiResult.quality,
   });
 });
