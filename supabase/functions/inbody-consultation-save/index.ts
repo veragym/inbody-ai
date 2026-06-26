@@ -17,11 +17,6 @@ function normalizeAiOutput(ai: Record<string, unknown> | null | undefined) {
     priority_goals: Array.isArray(ai?.priority_goals) ? ai.priority_goals : [],
     exercise_strategy: typeof ai?.exercise_strategy === "string" ? ai.exercise_strategy : "",
     nutrition_strategy: typeof ai?.nutrition_strategy === "string" ? ai.nutrition_strategy : "",
-    trainer_talk_track: Array.isArray(ai?.trainer_talk_track) ? ai.trainer_talk_track : [],
-    caution_notes: Array.isArray(ai?.caution_notes) ? ai.caution_notes : [],
-    session_lineup: Array.isArray(ai?.session_lineup) ? ai.session_lineup : [],
-    recommended_sessions: typeof ai?.recommended_sessions === "number" ? ai.recommended_sessions : null,
-    hook_message: typeof ai?.hook_message === "string" ? ai.hook_message : null,
     analysis_confidence: typeof ai?.analysis_confidence === "string" ? ai.analysis_confidence : null,
     analysis_meta: (ai?.analysis_meta && typeof ai.analysis_meta === "object") ? ai.analysis_meta : null,
   };
@@ -71,11 +66,6 @@ Deno.serve(async (req) => {
       priority_goals?: unknown[];
       exercise_strategy?: string | null;
       nutrition_strategy?: string | null;
-      trainer_talk_track?: string[];
-      caution_notes?: string[];
-      session_lineup?: unknown[];
-      recommended_sessions?: number;
-      hook_message?: string;
     };
     pt_registered: "등록" | "미등록" | "보류";
     registered_sessions?: number;
@@ -113,9 +103,6 @@ Deno.serve(async (req) => {
       ai_summary: normalizedAi.summary || null,
       ai_comparison_note: normalizedAi.comparison_note,
       ai_report_json: normalizedAi,
-      ai_session_lineup: normalizedAi.session_lineup,
-      ai_recommended_sessions: normalizedAi.recommended_sessions,
-      ai_hook_message: normalizedAi.hook_message,
       pt_registered: pt_registered ?? null,
       registered_sessions: registered_sessions ?? null,
       memo: memo ?? null,

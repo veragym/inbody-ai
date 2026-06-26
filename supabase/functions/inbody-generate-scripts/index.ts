@@ -177,12 +177,6 @@ function normalizeReport(out: Record<string, unknown>) {
       .slice(0, 3),
     exercise_strategy: cleanMemberFacingText(out.exercise_strategy),
     nutrition_strategy: cleanMemberFacingText(out.nutrition_strategy),
-    trainer_talk_track: Array.isArray(out.trainer_talk_track)
-      ? out.trainer_talk_track.filter((x) => typeof x === "string").slice(0, 3)
-      : [],
-    caution_notes: Array.isArray(out.caution_notes)
-      ? out.caution_notes.filter((x) => typeof x === "string").slice(0, 4)
-      : [],
     analysis_confidence: typeof out.analysis_confidence === "string" ? out.analysis_confidence : null,
     analysis_meta: (out.analysis_meta && typeof out.analysis_meta === "object") ? out.analysis_meta : null,
   };

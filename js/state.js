@@ -10,7 +10,7 @@ const State = {
   finalData: null,     // 트레이너 확정 JSON
   isManuallyEdited: false,
   inbodyRecordId: null,
-  aiOutput: null,            // { summary, comparison_note, session_lineup, recommended_sessions, hook_message }
+  aiOutput: null,            // member-facing AI report JSON
   lastRecord: null,          // 직전 인바디 기록 요약 (재방문 표시용)
   selectedHistoryRecord: null, // 이력 상세 보기용 레코드
 

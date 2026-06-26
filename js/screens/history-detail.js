@@ -29,9 +29,6 @@ registerScreen("history-detail", {
       const legacy = {
         summary: c.ai_summary ?? null,
         comparison_note: c.ai_comparison_note ?? null,
-        session_lineup: c.ai_session_lineup ?? [],
-        recommended_sessions: c.ai_recommended_sessions ?? null,
-        hook_message: c.ai_hook_message ?? null,
       };
 
       return {
@@ -43,11 +40,6 @@ registerScreen("history-detail", {
         priority_goals: report.priority_goals ?? [],
         exercise_strategy: report.exercise_strategy ?? "",
         nutrition_strategy: report.nutrition_strategy ?? "",
-        trainer_talk_track: report.trainer_talk_track ?? [],
-        caution_notes: report.caution_notes ?? [],
-        session_lineup: report.session_lineup ?? legacy.session_lineup,
-        recommended_sessions: report.recommended_sessions ?? legacy.recommended_sessions,
-        hook_message: report.hook_message ?? legacy.hook_message,
         analysis_confidence: report.analysis_confidence ?? null,
         analysis_meta: report.analysis_meta ?? null,
       };
