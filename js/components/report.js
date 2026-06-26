@@ -29,6 +29,22 @@ function _briefText(text, max = 74) {
   return base.length > max ? `${base.slice(0, max - 1).trim()}…` : base;
 }
 
+function _metricChips(final, raw) {
+  const chips = [
+    { label: "체중", value: final.weight, unit: "kg" },
+    { label: "골격근", value: final.skeletal_muscle, unit: "kg" },
+    { label: "체지방률", value: final.body_fat_pct, unit: "%" },
+    { label: "BMI", value: final.bmi, unit: "" },
+    { label: "내장지방", value: raw?.visceral_fat_level, unit: "레벨" },
+  ].filter(c => c.value != null && c.value !== "");
+  if (!chips.length) return "";
+  return `<div class="rep-chipbar">${chips.map(c => `
+<div class="rep-chip">
+  <span class="rep-chip-label">${_esc(c.label)}</span>
+  <span class="rep-chip-value">${_esc(c.value)}${c.unit ? _esc(c.unit) : ""}</span>
+</div>`).join("")}</div>`;
+}
+
 // ── 체성분 (v9: 막대+막대밖% + 항목설명 + 항목별 '!' + 종합) ───
 const _COMP_ITEMS = [
   { key: "total_body_water", label: "체수분", unit: "L", grad: "linear-gradient(135deg,#9AC2EF,#6FA4E0)", dot: "#185FA5",
@@ -299,7 +315,7 @@ function _priorityGoals(goals) {
     const why = g?.why || "";
     const action = g?.action || "";
     return `
-<details class="rep-goal">
+<details class="rep-goal"${i === 0 ? " open" : ""}>
   <summary>
     <span class="rep-goal-rank">${i + 1}</span>
     <span class="rep-goal-main">
@@ -429,6 +445,7 @@ function renderMemberReport(ai, State) {
       </div>
       ${_scoreDonut(final.inbody_score)}
     </div>
+    ${_metricChips(final, raw)}
     ${_noteHtml(MISCONCEPTIONS.inbody_score)}
     ${ai?.summary ? `<p class="rep-summary">${_esc(ai.summary)}</p>` : ""}
     ${ai?.comparison_note ? `<p class="rep-summary rep-compare">${_esc(ai.comparison_note)}</p>` : ""}
