@@ -22,12 +22,15 @@ registerScreen("login", {
 </div>`;
 
     let activeBranch = "";
+    let trainerLoadSeq = 0;
 
     async function loadTrainers(branch) {
+      const seq = ++trainerLoadSeq;
       const listEl = document.getElementById("trainer-list");
       listEl.innerHTML = `<div class="loading-spinner">불러오는 중...</div>`;
       try {
         const { trainers } = await callFn("inbody-trainers-list", branch ? { branch } : {});
+        if (seq !== trainerLoadSeq) return;
         if (!trainers || trainers.length === 0) {
           listEl.innerHTML = `<p class="empty-msg">등록된 트레이너가 없어요.</p>`;
           return;
@@ -49,6 +52,7 @@ registerScreen("login", {
           });
         });
       } catch (e) {
+        if (seq !== trainerLoadSeq) return;
         listEl.innerHTML = `<p class="error-msg">트레이너 목록을 불러오지 못했어요. 네트워크를 확인해주세요.</p>`;
       }
     }

@@ -52,6 +52,7 @@ registerScreen("member-search", {
     document.getElementById("back-btn").addEventListener("click", () => navigate("login"));
 
     let searchTimer = null;
+    let searchSeq = 0;
     let selectedGender = null;
 
     const searchInput = document.getElementById("search-input");
@@ -70,6 +71,7 @@ registerScreen("member-search", {
     });
 
     async function doSearch(name) {
+      const seq = ++searchSeq;
       resultsEl.innerHTML = `<div class="loading-spinner">불러오는 중...</div>`;
       try {
         const { members } = await callFn("inbody-members-search", {
@@ -77,6 +79,7 @@ registerScreen("member-search", {
           trainer_id: State.trainer.id,
           name: name.trim() || "%",
         });
+        if (seq !== searchSeq) return;
         if (!members || members.length === 0) {
           resultsEl.innerHTML = `<p class="empty-msg">'${name}'(으)로 검색된 회원이 없어요.</p>`;
           showNewTrigger();
@@ -149,6 +152,7 @@ registerScreen("member-search", {
           });
         });
       } catch (e) {
+        if (seq !== searchSeq) return;
         resultsEl.innerHTML = `<p class="error-msg">검색 중 오류가 생겼어요. 다시 시도해주세요.</p>`;
         showNewTrigger();
       }
@@ -161,7 +165,7 @@ registerScreen("member-search", {
       newFormEl.classList.remove("hidden");
       newTriggerEl.classList.add("hidden");
       document.getElementById("new-name").value = searchInput.value.trim();
-      newFormEl.scrollIntoView({ behavior: "smooth" });
+      newFormEl.scrollIntoView({ block: "start" });
     });
 
     document.getElementById("cancel-create-btn").addEventListener("click", () => {

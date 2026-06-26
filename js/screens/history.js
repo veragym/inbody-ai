@@ -58,7 +58,22 @@ registerScreen("history", {
       } catch { /* 이전 사전정보가 없어도 진행 */ }
     }
 
-    async function continueRecord(r) {
+    let lastPreInputsPromise = null;
+
+    function prepareLastPreInputs() {
+      if (!lastPreInputsPromise) {
+        lastPreInputsPromise = loadLastPreInputs().finally(() => {
+          lastPreInputsPromise = null;
+        });
+      }
+      return lastPreInputsPromise;
+    }
+
+    async function continueRecord(r, triggerBtn = null) {
+      if (triggerBtn) {
+        triggerBtn.disabled = true;
+        triggerBtn.textContent = "사전정보 준비 중...";
+      }
       State.imagePath = null;
       State.ocrData = null;
       State.finalData = recordToFinalData(r);
@@ -67,7 +82,7 @@ registerScreen("history", {
       State.aiOutput = null;
       State.preInputs = null;
       State.preInputBackScreen = "history";
-      await loadLastPreInputs();
+      await prepareLastPreInputs();
       navigate("pre-input");
     }
 
@@ -83,9 +98,11 @@ registerScreen("history", {
       State.preInputBackScreen = "history";
 
       // 이전 상담 데이터는 촬영 화면으로 이동한 뒤 백그라운드에서 pre-fill 준비
-      loadLastPreInputs();
+      prepareLastPreInputs();
       navigate("capture");
     });
+
+    prepareLastPreInputs();
 
     async function load() {
       const body = document.getElementById("history-body");
@@ -145,7 +162,7 @@ registerScreen("history", {
           btn.addEventListener("click", () => {
             const idx = Number(btn.dataset.idx);
             if (!records[idx]?.consultation) {
-              continueRecord(records[idx]);
+              continueRecord(records[idx], btn);
               return;
             }
             State.selectedHistoryRecord = records[idx];

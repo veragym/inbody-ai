@@ -184,6 +184,7 @@ registerScreen("ocr-confirm", {
           is_manually_edited: State.isManuallyEdited,
         });
         State.inbodyRecordId = inbody_record_id;
+        confirmBtn.textContent = "사전정보 준비 중...";
         await ensureLastPreInputs();
         navigate("pre-input");
       } catch (e) {
