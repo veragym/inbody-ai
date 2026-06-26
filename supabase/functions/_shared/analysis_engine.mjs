@@ -18,6 +18,8 @@ const FIELD_UNITS = {
   inbody_score: "점",
 };
 
+const BODY_SHAPE_CONCERN_SET = new Set(["복부", "거북목", "척추측만", "말린어깨", "O다리", "굽은등", "X다리", "일자허리", "평발", "팔뚝", "복부라인", "하체라인"]);
+
 const GENDER_ALIASES = {
   male: "male",
   m: "male",
@@ -32,6 +34,15 @@ const GENDER_ALIASES = {
   여성: "female",
   여자: "female",
 };
+
+function splitConcerns(preInputs) {
+  const mixedPain = Array.isArray(preInputs?.pain_concerns) ? preInputs.pain_concerns : [];
+  const explicitShape = Array.isArray(preInputs?.body_shape_concerns) ? preInputs.body_shape_concerns : [];
+  return {
+    pain: mixedPain.filter((v) => !BODY_SHAPE_CONCERN_SET.has(v)),
+    shape: [...new Set([...explicitShape, ...mixedPain.filter((v) => BODY_SHAPE_CONCERN_SET.has(v))])],
+  };
+}
 
 function toNum(value) {
   const n = typeof value === "number" ? value : Number(value);
@@ -216,7 +227,9 @@ function metricInterp(metric, band, delta, confidence) {
 function buildPriorityGoals(bands, signals, preInputs) {
   const goals = [];
   const purposes = Array.isArray(preInputs?.exercise_purpose) ? preInputs.exercise_purpose.join(", ") : "";
-  const pains = Array.isArray(preInputs?.pain_concerns) ? preInputs.pain_concerns.join(", ") : "";
+  const { pain, shape } = splitConcerns(preInputs);
+  const pains = pain.join(", ");
+  const shapes = shape.join(", ");
 
   if (bands.body_fat_pct.status === "high" || signals.some((s) => s.code === "visceral_fat_attention")) {
     goals.push({
@@ -237,6 +250,13 @@ function buildPriorityGoals(bands, signals, preInputs) {
       title: "통증 부위에 맞춘 강도 조절",
       why: `${pains} 이슈가 있으면 운동 효과보다 자세 안정과 부하 조절이 먼저입니다.`,
       action: "통증이 있는 동작은 가동 범위와 중량을 낮추고, 대체 동작으로 운동 흐름을 유지합니다.",
+    });
+  }
+  if (shapes) {
+    goals.push({
+      title: "체형 고민과 라인 균형 확인",
+      why: `${shapes} 고민은 통증으로 단정하지 않고 근육 균형, 자세, 체지방 분포를 함께 봐야 합니다.`,
+      action: "해당 부위만 반복하기보다 전신 근력 운동과 자세 정렬 동작을 함께 배치합니다.",
     });
   }
   if (purposes) {
@@ -264,8 +284,12 @@ function buildExerciseStrategy(input, bands) {
   const pre = input.pre_inputs ?? {};
   const experience = pre.exercise_experience || "운동 경험 정보 없음";
   const frequency = pre.exercise_frequency || "운동 빈도 미입력";
-  const pains = Array.isArray(pre.pain_concerns) && pre.pain_concerns.length
-    ? ` 통증/고민 부위(${pre.pain_concerns.join(", ")})는 강도를 낮춰 확인합니다.`
+  const { pain, shape } = splitConcerns(pre);
+  const pains = pain.length
+    ? ` 통증 부위(${pain.join(", ")})는 강도를 낮춰 확인합니다.`
+    : "";
+  const shapes = shape.length
+    ? ` 체형 고민(${shape.join(", ")})은 통증으로 보지 않고 자세 정렬과 라인 균형 기준으로 반영합니다.`
     : "";
   const musclePart = bands.skeletal_muscle.status === "low"
     ? "큰 근육 위주의 기본 근력 운동을 우선 배치하고,"
@@ -273,7 +297,7 @@ function buildExerciseStrategy(input, bands) {
   const fatPart = bands.body_fat_pct.status === "high"
     ? "유산소는 운동 후 15~25분 정도로 붙여 체지방 관리 흐름을 만듭니다."
     : "유산소는 회복과 컨디션 유지 목적의 보조 운동으로 둡니다.";
-  return `${experience}, ${frequency} 기준으로 ${musclePart} ${fatPart}${pains}`;
+  return `${experience}, ${frequency} 기준으로 ${musclePart} ${fatPart}${pains}${shapes}`;
 }
 
 function buildNutritionStrategy(input, bands) {

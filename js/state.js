@@ -3,7 +3,7 @@
 const State = {
   trainer: null,       // { id, name, branch }
   member: null,        // { id, name, gender, birth_year, phone_last4, branch }
-  preInputs: null,     // { exercise_purpose[], exercise_experience, pain_concerns[], member_tendency, motivation_level, exercise_frequency }
+  preInputs: null,     // { exercise_purpose[], exercise_experience, pain_concerns[], body_shape_concerns[], member_tendency, motivation_level, exercise_frequency }
   personas: [],        // string[]
   imagePath: null,     // string (버킷 내 경로)
   ocrData: null,       // OCR 원본 JSON

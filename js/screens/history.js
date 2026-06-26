@@ -42,6 +42,7 @@ registerScreen("history", {
             exercise_purpose:    last_consultation.exercise_purpose ?? [],
             exercise_experience: last_consultation.exercise_experience ?? null,
             pain_concerns:       last_consultation.pain_concerns ?? [],
+            body_shape_concerns: last_consultation.body_shape_concerns ?? [],
             member_tendency:     last_consultation.member_tendency ?? null,
             motivation_level:    last_consultation.motivation_level ?? null,
             exercise_frequency:  last_consultation.exercise_frequency ?? null,

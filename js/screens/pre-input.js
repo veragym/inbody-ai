@@ -12,9 +12,14 @@ const PRE_INPUT_CONFIG = {
     options: ["무경험", "경험있음(중단)", "꾸준히해옴"],
   },
   pain_concerns: {
-    label: "통증·체형 고민",
+    label: "통증 고민",
     multi: true,
-    options: ["목/어깨", "요통", "복부", "팔", "둔부", "가슴", "허벅지", "등", "종아리", "거북목", "척추측만", "말린어깨", "O다리", "굽은등", "X다리", "일자허리", "평발"],
+    options: ["목/어깨", "요통", "팔", "둔부", "가슴", "허벅지", "등", "종아리"],
+  },
+  body_shape_concerns: {
+    label: "체형 고민",
+    multi: true,
+    options: ["복부", "거북목", "척추측만", "말린어깨", "O다리", "굽은등", "X다리", "일자허리", "평발", "팔뚝"],
   },
   member_tendency: {
     label: "회원 성향",
@@ -55,10 +60,18 @@ registerScreen("pre-input", {
 
     // 이전 상담 데이터 있으면 pre-fill, 없으면 빈 값으로 시작
     const prev = State.preInputs;
+    const shapeOptions = new Set(PRE_INPUT_CONFIG.body_shape_concerns.options);
+    const migratedPrev = prev ? { ...prev } : null;
+    if (migratedPrev) {
+      const mixed = Array.isArray(migratedPrev.pain_concerns) ? migratedPrev.pain_concerns : [];
+      const existingShapes = Array.isArray(migratedPrev.body_shape_concerns) ? migratedPrev.body_shape_concerns : [];
+      migratedPrev.pain_concerns = mixed.filter(v => !shapeOptions.has(v));
+      migratedPrev.body_shape_concerns = [...new Set([...existingShapes, ...mixed.filter(v => shapeOptions.has(v))])];
+    }
     const selected = {};
     Object.keys(PRE_INPUT_CONFIG).forEach(k => {
-      if (prev) {
-        selected[k] = prev[k] ?? (PRE_INPUT_CONFIG[k].multi ? [] : null);
+      if (migratedPrev) {
+        selected[k] = migratedPrev[k] ?? (PRE_INPUT_CONFIG[k].multi ? [] : null);
       } else {
         selected[k] = PRE_INPUT_CONFIG[k].multi ? [] : null;
       }

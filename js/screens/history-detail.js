@@ -61,6 +61,7 @@ registerScreen("history-detail", {
         exercise_purpose: c.exercise_purpose ?? [],
         exercise_experience: c.exercise_experience ?? null,
         pain_concerns: c.pain_concerns ?? [],
+        body_shape_concerns: c.body_shape_concerns ?? [],
         member_tendency: c.member_tendency ?? null,
         motivation_level: c.motivation_level ?? null,
         exercise_frequency: c.exercise_frequency ?? null,

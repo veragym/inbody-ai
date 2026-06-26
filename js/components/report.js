@@ -233,7 +233,7 @@ function _expectedChange(change) {
 }
 
 // ── 부위별 근육 (통증/체형 개인화) ────────────────────────────
-function _segmental(raw, pain) {
+function _segmental(raw, pain, shape) {
   const seg = raw?.segmental_muscle;
   if (!seg) return "";
   const parts = [
@@ -255,10 +255,13 @@ function _segmental(raw, pain) {
     </div>`;
   }).join("");
 
-  const upperPain = (pain || []).some(p => ["거북목", "말린어깨", "목/어깨", "굽은등", "척추측만"].includes(p));
+  const upperPain = (pain || []).some(p => ["목/어깨", "등", "가슴", "팔"].includes(p));
+  const postureShape = (shape || []).find(p => ["거북목", "말린어깨", "굽은등", "척추측만"].includes(p));
   const painNote = upperPain
-    ? `특히 상체 근육이 약한데, ${_esc((pain || []).filter(p => ["거북목", "말린어깨", "굽은등"].includes(p))[0] || "자세 문제")}와 맞물리면 목·어깨 통증으로 이어지기 쉬워요.`
-    : `부위별 균형을 보면 어디부터 채워야 할지 알 수 있어요.`;
+    ? `통증 고민은 ${_esc(pain.join(", "))} 기준으로 보고, 중량보다 자세 안정과 강도 조절을 먼저 봅니다.`
+    : postureShape
+      ? `${_esc(postureShape)} 고민은 통증으로 단정하지 않고 상체 정렬과 좌우 균형 관점으로 확인합니다.`
+      : `부위별 균형을 보면 어디부터 채워야 할지 알 수 있어요.`;
   return `
 <section class="rep-blk">
   <h2 class="rep-sec">부위별 근육</h2>
@@ -396,17 +399,46 @@ function _deltaText(v, unit) {
   return `${sign}${v}${unit}`;
 }
 
+const BODY_SHAPE_CONCERN_SET = new Set(["복부", "거북목", "척추측만", "말린어깨", "O다리", "굽은등", "X다리", "일자허리", "평발", "팔뚝", "복부라인", "하체라인"]);
+
+function _splitConcerns(preInputs) {
+  const mixedPain = Array.isArray(preInputs?.pain_concerns) ? preInputs.pain_concerns : [];
+  const explicitShape = Array.isArray(preInputs?.body_shape_concerns) ? preInputs.body_shape_concerns : [];
+  return {
+    pain: mixedPain.filter(v => !BODY_SHAPE_CONCERN_SET.has(v)),
+    shape: [...new Set([...explicitShape, ...mixedPain.filter(v => BODY_SHAPE_CONCERN_SET.has(v))])],
+  };
+}
+
 // ── 한 줄 진단(상태 기반 결정론) ──────────────────────────────
-function _headline(final, gender) {
+function _headline(final, gender, preInputs) {
   const sm = _band("skeletal_muscle", final.skeletal_muscle, gender).status;
   const bf = _band("body_fat_pct", final.body_fat_pct, gender).status;
+  const goals = Array.isArray(preInputs?.exercise_purpose) ? preInputs.exercise_purpose : [];
+  const { pain, shape } = _splitConcerns(preInputs);
   const muscleLow = sm === "low";
   const fatHigh = bf === "high";
-  if (muscleLow && fatHigh) return "근육은 표준보다 적고<br>체지방은 많은 상태예요";
-  if (fatHigh) return "체지방이 표준보다<br>많은 상태예요";
-  if (muscleLow) return "근육이 표준보다<br>적은 상태예요";
+  if (goals.includes("근육량증가/근력향상") && muscleLow) return "근육을 채우는 전략이<br>가장 먼저 필요해요";
+  if (goals.includes("바디라인다듬기") && fatHigh) return "라인 변화는 체지방과<br>근육 균형에서 시작해요";
+  if (shape.length && fatHigh) return `${_esc(shape[0])} 고민은<br>체지방률과 함께 봐야 해요`;
+  if (pain.length && muscleLow) return `${_esc(pain[0])} 부담을 줄이려면<br>근육 지지가 먼저예요`;
+  if (muscleLow && fatHigh) return "근육은 채우고<br>체지방은 낮출 단계예요";
+  if (fatHigh) return "체지방 관리가<br>우선 과제예요";
+  if (muscleLow) return "근육량 보강이<br>우선 과제예요";
   if (bf === "low") return "체지방이 표준보다<br>적은 편이에요";
   return "전반적으로 균형 잡힌<br>몸 상태예요";
+}
+
+function _heroSub(final, gender, preInputs) {
+  const sm = _band("skeletal_muscle", final.skeletal_muscle, gender).status;
+  const bf = _band("body_fat_pct", final.body_fat_pct, gender).status;
+  const goals = Array.isArray(preInputs?.exercise_purpose) ? preInputs.exercise_purpose : [];
+  const { pain, shape } = _splitConcerns(preInputs);
+  if (pain.length) return `통증 고민(${_esc(pain.join(", "))})은 운동 강도와 자세 조절 기준으로만 반영했어요.`;
+  if (shape.length) return `체형 고민(${_esc(shape.join(", "))})은 통증이 아니라 라인과 자세 균형 관점으로 봤어요.`;
+  if (goals.length) return `${_esc(goals[0])} 목표에 맞춰 현재 지표의 우선순위를 잡았어요.`;
+  if (sm === "low" || bf === "high") return "지금 수치는 평가가 아니라 다음 계획을 정하는 기준점이에요.";
+  return "현재 균형을 유지하면서 다음 변화 방향을 확인하면 됩니다.";
 }
 
 // ── 메인: 회원 리포트 렌더 ────────────────────────────────────
@@ -414,7 +446,7 @@ function renderMemberReport(ai, State) {
   const final = State.finalData || {};
   const gender = State.member?.gender;
   const raw = final.raw || {};
-  const pain = State.preInputs?.pain_concerns || [];
+  const { pain, shape } = _splitConcerns(State.preInputs);
 
   const compData = {
     total_body_water: raw.total_body_water ?? null,
@@ -431,8 +463,8 @@ function renderMemberReport(ai, State) {
     <div class="rep-hero-row">
       <div class="rep-hero-txt">
         <p class="rep-meta">${_esc(State.member?.name || "")} · ${_esc(gender || "")}${State.member?.birth_year ? " " + (new Date().getFullYear() - State.member.birth_year) + "세" : ""} · ${_esc(State.member?.branch || "")}</p>
-        <h1 class="rep-h1">${_headline(final, gender)}</h1>
-        <p class="rep-hero-sub">나쁜 게 아니라 출발점이에요. 충분히 바꿀 수 있어요.</p>
+        <h1 class="rep-h1">${_headline(final, gender, State.preInputs)}</h1>
+        <p class="rep-hero-sub">${_heroSub(final, gender, State.preInputs)}</p>
       </div>
       ${_scoreDonut(final.inbody_score)}
     </div>
@@ -459,7 +491,7 @@ function renderMemberReport(ai, State) {
   </section>
 
   ${_visceral(raw)}
-  ${ai?.segmental_analysis ? _aiTextSection("부위별 균형 해석", ai.segmental_analysis) : _segmental(raw, pain)}
+  ${ai?.segmental_analysis ? _aiTextSection("부위별 균형 해석", ai.segmental_analysis) : _segmental(raw, pain, shape)}
   ${_priorityGoals(ai?.priority_goals)}
   ${_aiTextSection("운동 전략", ai?.exercise_strategy)}
   ${_aiTextSection("식단 전략", ai?.nutrition_strategy)}

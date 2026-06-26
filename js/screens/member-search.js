@@ -168,6 +168,7 @@ registerScreen("member-search", {
                 exercise_purpose:    lastConsultation.exercise_purpose ?? [],
                 exercise_experience: lastConsultation.exercise_experience ?? null,
                 pain_concerns:       lastConsultation.pain_concerns ?? [],
+                body_shape_concerns: lastConsultation.body_shape_concerns ?? [],
                 member_tendency:     lastConsultation.member_tendency ?? null,
                 motivation_level:    lastConsultation.motivation_level ?? null,
                 exercise_frequency:  lastConsultation.exercise_frequency ?? null,

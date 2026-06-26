@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
       .from("inbody_consultation_logs")
       .select(`
         inbody_record_id,
-        exercise_purpose, exercise_experience, pain_concerns,
+        exercise_purpose, exercise_experience, pain_concerns, body_shape_concerns,
         member_tendency, motivation_level, exercise_frequency,
         protein_intake, carb_intake, fat_intake,
         trainer_personas,

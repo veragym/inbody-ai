@@ -50,6 +50,7 @@ Deno.serve(async (req) => {
       exercise_purpose: string[];
       exercise_experience: string;
       pain_concerns: string[];
+      body_shape_concerns?: string[];
       member_tendency: string;
       motivation_level: string;
       exercise_frequency: string;
@@ -95,6 +96,7 @@ Deno.serve(async (req) => {
       exercise_purpose: pre_inputs?.exercise_purpose ?? [],
       exercise_experience: pre_inputs?.exercise_experience ?? null,
       pain_concerns: pre_inputs?.pain_concerns ?? [],
+      body_shape_concerns: pre_inputs?.body_shape_concerns ?? [],
       member_tendency: pre_inputs?.member_tendency ?? null,
       motivation_level: pre_inputs?.motivation_level ?? null,
       exercise_frequency: pre_inputs?.exercise_frequency,

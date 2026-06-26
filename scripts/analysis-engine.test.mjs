@@ -86,6 +86,21 @@ test("shares metric ranges and member-facing text cleanup rules", () => {
   assert.equal(cleanMemberText("불안형 성향과 스트레스가 있는 회원 성향"), "운동 부담과 스트레스가 있는 현재 상태");
 });
 
+test("separates body-shape concerns from pain guidance", () => {
+  const report = generateRuleAnalysis({
+    ...baseInput,
+    pre_inputs: {
+      ...baseInput.pre_inputs,
+      pain_concerns: ["팔뚝", "목/어깨"],
+      body_shape_concerns: ["복부"],
+    },
+  });
+
+  assert.match(report.exercise_strategy, /통증 부위\(목\/어깨\)/);
+  assert.match(report.exercise_strategy, /체형 고민\(복부, 팔뚝\)/);
+  assert.doesNotMatch(report.exercise_strategy, /통증 부위\(팔뚝/);
+});
+
 test("keeps output usable when optional history and raw composition fields are missing", () => {
   const report = generateRuleAnalysis({
     ...baseInput,
