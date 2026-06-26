@@ -60,6 +60,17 @@ function _metricChips(final, raw) {
 </section>`;
 }
 
+function _summaryBlock(ai) {
+  const summary = _memberText(ai?.summary);
+  const comparison = _memberText(ai?.comparison_note);
+  if (!summary && !comparison) return "";
+  return `<section class="rep-blk rep-ai-summary">
+  <h2 class="rep-sec">현재 상태 요약</h2>
+  ${summary ? `<p class="rep-summary">${_esc(summary)}</p>` : ""}
+  ${comparison ? `<p class="rep-summary rep-compare">${_esc(comparison)}</p>` : ""}
+</section>`;
+}
+
 // ── 체성분 (v9: 막대+막대밖% + 항목설명 + 항목별 '!' + 종합) ───
 const _COMP_ITEMS = [
   { key: "total_body_water", label: "체수분", unit: "L", grad: "linear-gradient(135deg,#9AC2EF,#6FA4E0)", dot: "#185FA5",
@@ -155,8 +166,8 @@ function _reportMetric(metric, value, gender, label, unit, higherBetter, note, i
     return `<div class="rep-conn" style="left:${a}%;width:${w}%"></div>
             <div class="rep-delta" style="left:${(a + w / 2)}%">${t.delta > 0 ? "+" : ""}${t.delta}${unit}</div>`;
   })() : "";
-  const tgtMarker = t ? `<div class="rep-tbadge" style="left:${badgePct}%">목표 ${t.target}${unit}</div>
-                         <div class="rep-tg" style="left:${t.markerPct}%"></div>` : "";
+  const tgtMarker = t ? `<div class="rep-tg" style="left:${t.markerPct}%"></div>` : "";
+  const tgtBadge = t ? `<div class="rep-tbadge-row"><span class="rep-tbadge" style="left:${badgePct}%">목표 ${t.target}${unit}</span></div>` : "";
   const tgtText = t ? `<div class="rep-metric-target">목표 ${t.target}${unit} ${t.dir === "up" ? "이상 ↑" : "이하 ↓"}</div>` : "";
 
   return `
@@ -169,12 +180,13 @@ function _reportMetric(metric, value, gender, label, unit, higherBetter, note, i
     </div>
   </div>
   <div class="rep-barwrap">
-    ${tgtMarker}
     <div class="rep-tk">
       <div class="rep-zn zn-low"></div><div class="rep-zn zn-std"></div><div class="rep-zn zn-high"></div>
+      ${tgtMarker}
       ${connHtml}
       <div class="rep-mk" data-status="${b.status}" style="left:${b.markerPct}%"></div>
     </div>
+    ${tgtBadge}
   </div>
   <div class="rep-zl"><span>표준 이하</span><span>표준</span><span>표준 이상</span></div>
   ${interp ? `<p class="rep-mean">${_esc(interp)}</p>` : ""}
@@ -470,8 +482,6 @@ function renderMemberReport(ai, State) {
       ${_scoreDonut(final.inbody_score)}
     </div>
     ${_noteHtml(MISCONCEPTIONS.inbody_score)}
-    ${ai?.summary ? `<p class="rep-summary">${_esc(_memberText(ai.summary))}</p>` : ""}
-    ${ai?.comparison_note ? `<p class="rep-summary rep-compare">${_esc(_memberText(ai.comparison_note))}</p>` : ""}
   </section>
 
   <!-- 체성분 -->
@@ -479,6 +489,7 @@ function renderMemberReport(ai, State) {
   ${_aiTextSection("AI 체성분 정밀 해석", ai?.body_composition_analysis)}
   ${_analysisMetaSection(ai?.analysis_meta)}
   ${_metricChips(final, raw)}
+  ${_summaryBlock(ai)}
 
   <!-- 핵심 지표 -->
   <section class="rep-blk">
