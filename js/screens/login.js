@@ -24,35 +24,48 @@ registerScreen("login", {
     let activeBranch = "";
     let trainerLoadSeq = 0;
 
-    async function loadTrainers(branch) {
-      const seq = ++trainerLoadSeq;
+    function renderTrainers(trainers) {
       const listEl = document.getElementById("trainer-list");
-      listEl.innerHTML = `<div class="loading-spinner">불러오는 중...</div>`;
-      try {
-        const { trainers } = await callFn("inbody-trainers-list", branch ? { branch } : {});
-        if (seq !== trainerLoadSeq) return;
-        if (!trainers || trainers.length === 0) {
-          listEl.innerHTML = `<p class="empty-msg">등록된 트레이너가 없어요.</p>`;
-          return;
-        }
-        listEl.innerHTML = trainers.map(t => `
+      if (!trainers || trainers.length === 0) {
+        listEl.innerHTML = `<p class="empty-msg">등록된 트레이너가 없어요.</p>`;
+        return;
+      }
+      listEl.innerHTML = trainers.map(t => `
 <button class="trainer-btn" data-id="${t.id}" data-name="${t.name}" data-branch="${t.branch}">
   <span class="trainer-name">${t.name}</span>
   <span class="trainer-branch">${t.branch}</span>
 </button>`).join("");
 
-        listEl.querySelectorAll(".trainer-btn").forEach(btn => {
-          btn.addEventListener("click", () => {
-            State.trainer = {
-              id: btn.dataset.id,
-              name: btn.dataset.name,
-              branch: btn.dataset.branch,
-            };
-            navigate("member-search");
-          });
+      listEl.querySelectorAll(".trainer-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          State.trainer = {
+            id: btn.dataset.id,
+            name: btn.dataset.name,
+            branch: btn.dataset.branch,
+          };
+          navigate("member-search");
         });
+      });
+    }
+
+    async function loadTrainers(branch) {
+      const seq = ++trainerLoadSeq;
+      const cacheKey = branch || "__all__";
+      const listEl = document.getElementById("trainer-list");
+      const cached = State.uiCache.trainersByBranch[cacheKey];
+      if (cached) {
+        renderTrainers(cached);
+      } else {
+        listEl.innerHTML = `<div class="loading-spinner">불러오는 중...</div>`;
+      }
+      try {
+        const { trainers } = await callFn("inbody-trainers-list", branch ? { branch } : {});
+        if (seq !== trainerLoadSeq) return;
+        State.uiCache.trainersByBranch[cacheKey] = trainers || [];
+        renderTrainers(trainers);
       } catch (e) {
         if (seq !== trainerLoadSeq) return;
+        if (cached) return;
         listEl.innerHTML = `<p class="error-msg">트레이너 목록을 불러오지 못했어요. 네트워크를 확인해주세요.</p>`;
       }
     }

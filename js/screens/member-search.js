@@ -64,22 +64,17 @@ registerScreen("member-search", {
       newTriggerEl.classList.remove("hidden");
     }
 
+    function clearMemberSearchCache() {
+      State.uiCache.memberSearchByQuery = {};
+    }
+
     searchInput.addEventListener("input", () => {
       clearTimeout(searchTimer);
       const q = searchInput.value.trim();
       searchTimer = setTimeout(() => doSearch(q || " "), 300);
     });
 
-    async function doSearch(name) {
-      const seq = ++searchSeq;
-      resultsEl.innerHTML = `<div class="loading-spinner">불러오는 중...</div>`;
-      try {
-        const { members } = await callFn("inbody-members-search", {
-          action: "search",
-          trainer_id: State.trainer.id,
-          name: name.trim() || "%",
-        });
-        if (seq !== searchSeq) return;
+    function renderMembers(name, members) {
         if (!members || members.length === 0) {
           resultsEl.innerHTML = `<p class="empty-msg">'${name}'(으)로 검색된 회원이 없어요.</p>`;
           showNewTrigger();
@@ -126,6 +121,7 @@ registerScreen("member-search", {
                 trainer_id: State.trainer.id,
                 member_id: btn.dataset.id,
               });
+              clearMemberSearchCache();
               btn.closest(".member-row").remove();
             } catch {
               alert("삭제 중 오류가 생겼어요.");
@@ -151,8 +147,30 @@ registerScreen("member-search", {
             navigate("history");
           });
         });
+    }
+
+    async function doSearch(name) {
+      const normalizedName = name.trim() || "%";
+      const cacheKey = `${State.trainer.id}:${normalizedName}`;
+      const seq = ++searchSeq;
+      const cached = State.uiCache.memberSearchByQuery[cacheKey];
+      if (cached) {
+        renderMembers(name, cached);
+      } else {
+        resultsEl.innerHTML = `<div class="loading-spinner">불러오는 중...</div>`;
+      }
+      try {
+        const { members } = await callFn("inbody-members-search", {
+          action: "search",
+          trainer_id: State.trainer.id,
+          name: normalizedName,
+        });
+        if (seq !== searchSeq) return;
+        State.uiCache.memberSearchByQuery[cacheKey] = members || [];
+        renderMembers(name, members);
       } catch (e) {
         if (seq !== searchSeq) return;
+        if (cached) return;
         resultsEl.innerHTML = `<p class="error-msg">검색 중 오류가 생겼어요. 다시 시도해주세요.</p>`;
         showNewTrigger();
       }
@@ -202,6 +220,7 @@ registerScreen("member-search", {
           branch: State.trainer.branch,
           phone_last4,
         });
+        clearMemberSearchCache();
         State.member = { ...member };
         State.preInputs = null;
         State.lastRecord = null;

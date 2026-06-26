@@ -76,6 +76,9 @@ registerScreen("consultation", {
           registered_sessions: registeredSessions,
           memo,
         });
+        State.uiCache.historyByMember = {};
+        State.uiCache.memberSearchByQuery = {};
+        State.uiCache.preInputsByMember = {};
 
         // 완료 화면
         el.querySelector(".screen").innerHTML = `

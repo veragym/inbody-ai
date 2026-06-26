@@ -34,14 +34,20 @@ registerScreen("history", {
     }
 
     async function loadLastPreInputs() {
+      const cacheKey = `${State.trainer.id}:${State.member.id}`;
+      const cached = State.uiCache.preInputsByMember[cacheKey];
+      if (cached) {
+        State.preInputs = cached.preInputs;
+        State.lastRecord = cached.lastRecord;
+        return;
+      }
       try {
         const { last_consultation, last_record } = await callFn("inbody-members-search", {
           action: "history",
           trainer_id: State.trainer.id,
           member_id: State.member.id,
         });
-        if (last_consultation) {
-          State.preInputs = {
+        const preInputs = last_consultation ? {
             exercise_purpose:    last_consultation.exercise_purpose ?? [],
             exercise_experience: last_consultation.exercise_experience ?? null,
             pain_concerns:       last_consultation.pain_concerns ?? [],
@@ -52,9 +58,13 @@ registerScreen("history", {
             protein_intake:      last_consultation.protein_intake ?? null,
             carb_intake:         last_consultation.carb_intake ?? null,
             fat_intake:          last_consultation.fat_intake ?? null,
-          };
-        }
+          } : null;
+        if (preInputs) State.preInputs = preInputs;
         State.lastRecord = last_record ?? null;
+        State.uiCache.preInputsByMember[cacheKey] = {
+          preInputs,
+          lastRecord: last_record ?? null,
+        };
       } catch { /* 이전 사전정보가 없어도 진행 */ }
     }
 
@@ -104,27 +114,21 @@ registerScreen("history", {
 
     prepareLastPreInputs();
 
-    async function load() {
+    function renderRecords(records) {
       const body = document.getElementById("history-body");
-      try {
-        const { records } = await callFn("inbody-history", {
-          member_id: State.member.id,
-          trainer_id: State.trainer.id,
+      if (!records || records.length === 0) {
+        body.innerHTML = `<p class="empty-msg">아직 기록된 인바디 측정 결과가 없어요.</p>`;
+        return;
+      }
+
+      body.innerHTML = records.map((r, idx) => {
+        const date = new Date(r.measured_at).toLocaleDateString("ko-KR", {
+          year: "numeric", month: "long", day: "numeric",
         });
+        const isFirst = idx === records.length - 1;
+        const hasConsult = !!r.consultation;
 
-        if (!records || records.length === 0) {
-          body.innerHTML = `<p class="empty-msg">아직 기록된 인바디 측정 결과가 없어요.</p>`;
-          return;
-        }
-
-        body.innerHTML = records.map((r, idx) => {
-          const date = new Date(r.measured_at).toLocaleDateString("ko-KR", {
-            year: "numeric", month: "long", day: "numeric",
-          });
-          const isFirst = idx === records.length - 1;
-          const hasConsult = !!r.consultation;
-
-          return `
+        return `
 <div class="history-card${idx === 0 ? " history-card--latest" : ""}">
   <div class="history-card-header">
     <div class="history-date-wrap">
@@ -155,34 +159,51 @@ registerScreen("history", {
     </button>
   </div>
 </div>`;
-        }).join("");
+      }).join("");
 
-        // 분석 결과 보기 버튼
-        body.querySelectorAll(".btn-view-detail").forEach(btn => {
-          btn.addEventListener("click", () => {
-            const idx = Number(btn.dataset.idx);
-            if (!records[idx]?.consultation) {
-              continueRecord(records[idx], btn);
-              return;
-            }
-            State.selectedHistoryRecord = records[idx];
-            navigate("history-detail");
-          });
+      // 분석 결과 보기 버튼
+      body.querySelectorAll(".btn-view-detail").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const idx = Number(btn.dataset.idx);
+          if (!records[idx]?.consultation) {
+            continueRecord(records[idx], btn);
+            return;
+          }
+          State.selectedHistoryRecord = records[idx];
+          navigate("history-detail");
         });
+      });
 
-        body.querySelectorAll(".btn-view-preinfo").forEach(btn => {
-          btn.addEventListener("click", () => {
-            const idx = Number(btn.dataset.idx);
-            if (!records[idx]?.consultation) {
-              alert("이 기록에는 사전정보가 없어요.");
-              return;
-            }
-            State.selectedHistoryRecord = records[idx];
-            navigate("history-preinfo");
-          });
+      body.querySelectorAll(".btn-view-preinfo").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const idx = Number(btn.dataset.idx);
+          if (!records[idx]?.consultation) {
+            alert("이 기록에는 사전정보가 없어요.");
+            return;
+          }
+          State.selectedHistoryRecord = records[idx];
+          navigate("history-preinfo");
         });
+      });
+    }
+
+    async function load() {
+      const body = document.getElementById("history-body");
+      const cacheKey = `${State.trainer.id}:${State.member.id}`;
+      const cached = State.uiCache.historyByMember[cacheKey];
+      if (cached) {
+        renderRecords(cached);
+      }
+      try {
+        const { records } = await callFn("inbody-history", {
+          member_id: State.member.id,
+          trainer_id: State.trainer.id,
+        });
+        State.uiCache.historyByMember[cacheKey] = records || [];
+        renderRecords(records);
 
       } catch {
+        if (cached) return;
         body.innerHTML = `<p class="error-msg">이력을 불러오지 못했어요. 다시 시도해주세요.</p>`;
       }
     }
