@@ -7,6 +7,18 @@ function _esc(s) {
   return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
+function _memberText(value) {
+  return String(value || "")
+    .replace(/불안형\s*성향과\s*스트레스/g, "운동 부담과 스트레스")
+    .replace(/불안형\s*성향/g, "운동 시작 부담")
+    .replace(/결과중심형\s*성향|과정중시형\s*성향|자기주도형\s*성향/g, "운동 접근 방식")
+    .replace(/회원\s*성향/g, "현재 상태")
+    .replace(/불안형|결과중심형|과정중시형|자기주도형|모르겠음/g, "")
+    .replace(/\s*성향/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
 // ── 흔한 오해 주의 ('!' 각주) ──────────────────────────────────
 const MISCONCEPTIONS = {
   inbody_score: "인바디 점수가 곧 건강은 아니에요. 근육이 많으면 100점을 넘기도 하는, 근육 위주의 점수예요.",
@@ -22,7 +34,7 @@ function _noteHtml(text) {
 }
 
 function _briefText(text, max = 74) {
-  const s = String(text || "").replace(/\s+/g, " ").trim();
+  const s = _memberText(text).replace(/\s+/g, " ").trim();
   if (!s) return "";
   const first = s.match(/^(.+?[.!?。]|.+?요\.|.+?다\.)\s/)?.[1] || "";
   const base = first && first.length <= max ? first : s;
@@ -294,7 +306,8 @@ function _visceral(raw) {
 
 function _aiTextSection(title, text) {
   if (!text) return "";
-  const brief = _briefText(text);
+  const safeText = _memberText(text);
+  const brief = _briefText(safeText);
   return `
 <section class="rep-blk">
   <h2 class="rep-sec">${_esc(title)}</h2>
@@ -303,7 +316,7 @@ function _aiTextSection(title, text) {
       <span class="rep-reveal-title">${_esc(brief || title)}</span>
       <span class="rep-reveal-btn">자세히</span>
     </summary>
-    <p class="rep-mean">${_esc(text)}</p>
+    <p class="rep-mean">${_esc(safeText)}</p>
   </details>
 </section>`;
 }
@@ -311,11 +324,11 @@ function _aiTextSection(title, text) {
 function _priorityGoals(goals) {
   if (!Array.isArray(goals) || goals.length === 0) return "";
   const items = goals.map((g, i) => {
-    const title = g?.title || `우선 목표 ${i + 1}`;
-    const why = g?.why || "";
-    const action = g?.action || "";
+    const title = _memberText(g?.title) || `우선 목표 ${i + 1}`;
+    const why = _memberText(g?.why);
+    const action = _memberText(g?.action);
     return `
-<details class="rep-goal"${i === 0 ? " open" : ""}>
+<details class="rep-goal">
   <summary>
     <span class="rep-goal-rank">${i + 1}</span>
     <span class="rep-goal-main">
@@ -346,9 +359,9 @@ function _aiBulletSection(title, items) {
 }
 
 function _metricInterpText(value, fallback) {
-  if (typeof value === "string") return value;
+  if (typeof value === "string") return _memberText(value);
   if (value && typeof value === "object") {
-    return typeof value.text === "string" && value.text ? value.text : fallback;
+    return typeof value.text === "string" && value.text ? _memberText(value.text) : fallback;
   }
   return fallback;
 }
@@ -445,10 +458,10 @@ function renderMemberReport(ai, State) {
       </div>
       ${_scoreDonut(final.inbody_score)}
     </div>
-    ${_metricChips(final, raw)}
     ${_noteHtml(MISCONCEPTIONS.inbody_score)}
-    ${ai?.summary ? `<p class="rep-summary">${_esc(ai.summary)}</p>` : ""}
-    ${ai?.comparison_note ? `<p class="rep-summary rep-compare">${_esc(ai.comparison_note)}</p>` : ""}
+    ${ai?.summary ? `<p class="rep-summary">${_esc(_memberText(ai.summary))}</p>` : ""}
+    ${ai?.comparison_note ? `<p class="rep-summary rep-compare">${_esc(_memberText(ai.comparison_note))}</p>` : ""}
+    ${_metricChips(final, raw)}
   </section>
 
   <!-- 체성분 -->
