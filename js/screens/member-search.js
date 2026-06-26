@@ -152,7 +152,6 @@ registerScreen("member-search", {
 
         resultsEl.querySelectorAll(".member-btn").forEach(btn => {
           btn.addEventListener("click", () => {
-            const member = members.find(m => String(m.id) === String(btn.dataset.id));
             State.member = {
               id: btn.dataset.id,
               name: btn.dataset.name,
@@ -161,28 +160,11 @@ registerScreen("member-search", {
               phone_last4: btn.dataset.phone || null,
               branch: btn.dataset.branch,
             };
-            const lastConsultation = member?.last_consultation ?? null;
-            const lastRecord = member?.last_record ?? null;
-            if (lastConsultation) {
-              State.preInputs = {
-                exercise_purpose:    lastConsultation.exercise_purpose ?? [],
-                exercise_experience: lastConsultation.exercise_experience ?? null,
-                pain_concerns:       lastConsultation.pain_concerns ?? [],
-                body_shape_concerns: lastConsultation.body_shape_concerns ?? [],
-                member_tendency:     lastConsultation.member_tendency ?? null,
-                motivation_level:    lastConsultation.motivation_level ?? null,
-                exercise_frequency:  lastConsultation.exercise_frequency ?? null,
-                protein_intake:      lastConsultation.protein_intake ?? null,
-                carb_intake:         lastConsultation.carb_intake ?? null,
-                fat_intake:          lastConsultation.fat_intake ?? null,
-              };
-              State.personas = lastConsultation.trainer_personas ?? [];
-            } else {
-              State.preInputs = null;
-              State.personas = [];
-            }
-            State.lastRecord = lastRecord;
-            navigate("pre-input");
+            State.preInputs = null;
+            State.personas = [];
+            State.lastRecord = null;
+            State.selectedHistoryRecord = null;
+            navigate("history");
           });
         });
       } catch (e) {
@@ -236,6 +218,10 @@ registerScreen("member-search", {
           phone_last4,
         });
         State.member = { ...member };
+        State.preInputs = null;
+        State.personas = [];
+        State.lastRecord = null;
+        State.preInputBackScreen = "member-search";
         navigate("pre-input");
       } catch (e) {
         alert("등록 중 오류가 생겼어요. 다시 시도해주세요.");

@@ -57,6 +57,7 @@ const PRE_INPUT_CONFIG = {
 registerScreen("pre-input", {
   mount(el) {
     if (!State.member) { navigate("member-search"); return; }
+    const backScreen = State.preInputBackScreen || "member-search";
 
     // 이전 상담 데이터 있으면 pre-fill, 없으면 빈 값으로 시작
     const prev = State.preInputs;
@@ -113,7 +114,7 @@ registerScreen("pre-input", {
   </div>
 </div>`;
 
-    document.getElementById("back-btn").addEventListener("click", () => navigate("member-search"));
+    document.getElementById("back-btn").addEventListener("click", () => navigate(backScreen));
 
     // 저장된 선택값 칩에 반영
     el.querySelectorAll(".chip-group").forEach(group => {
@@ -155,7 +156,7 @@ registerScreen("pre-input", {
 
     document.getElementById("save-exit-btn").addEventListener("click", () => {
       State.preInputs = { ...selected };
-      navigate("member-search");
+      navigate(backScreen);
     });
 
     document.getElementById("next-btn").addEventListener("click", () => {

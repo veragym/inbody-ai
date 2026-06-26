@@ -29,6 +29,9 @@ registerScreen("history", {
       State.isManuallyEdited = false;
       State.inbodyRecordId = null;
       State.aiOutput = null;
+      State.preInputs = null;
+      State.personas = [];
+      State.preInputBackScreen = "history";
 
       // 이전 상담 데이터 조용히 불러와 pre-fill (실패해도 진행)
       try {
@@ -46,13 +49,16 @@ registerScreen("history", {
             member_tendency:     last_consultation.member_tendency ?? null,
             motivation_level:    last_consultation.motivation_level ?? null,
             exercise_frequency:  last_consultation.exercise_frequency ?? null,
+            protein_intake:      last_consultation.protein_intake ?? null,
+            carb_intake:         last_consultation.carb_intake ?? null,
+            fat_intake:          last_consultation.fat_intake ?? null,
           };
           State.personas = last_consultation.trainer_personas ?? [];
         }
         State.lastRecord = last_record ?? null;
-      } catch { /* 실패해도 캡처 화면으로 진행 */ }
+      } catch { /* 실패해도 사전입력 화면으로 진행 */ }
 
-      navigate("capture");
+      navigate("pre-input");
     });
 
     async function load() {
@@ -101,6 +107,9 @@ registerScreen("history", {
     <button class="btn-view-detail" data-idx="${idx}" ${hasConsult ? "" : "disabled"}>
       ${hasConsult ? "분석 결과 보기 →" : "상담 후 분석"}
     </button>
+    <button class="btn-view-preinfo" data-idx="${idx}" ${hasConsult ? "" : "disabled"}>
+      ${hasConsult ? "사전정보" : "사전정보 없음"}
+    </button>
   </div>
 </div>`;
         }).join("");
@@ -115,6 +124,18 @@ registerScreen("history", {
             }
             State.selectedHistoryRecord = records[idx];
             navigate("history-detail");
+          });
+        });
+
+        body.querySelectorAll(".btn-view-preinfo").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const idx = Number(btn.dataset.idx);
+            if (!records[idx]?.consultation) {
+              alert("이 기록에는 사전정보가 없어요.");
+              return;
+            }
+            State.selectedHistoryRecord = records[idx];
+            navigate("history-preinfo");
           });
         });
 

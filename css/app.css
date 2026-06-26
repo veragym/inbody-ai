@@ -1101,11 +1101,13 @@ html, body {
 .history-card-footer {
   display: flex;
   justify-content: flex-end;
+  gap: var(--space-2);
   padding-top: var(--space-2);
   border-top: 1px solid var(--border-subtle);
 }
 
-.btn-view-detail {
+.btn-view-detail,
+.btn-view-preinfo {
   height: 40px;
   padding: 0 var(--space-4);
   background: transparent;
@@ -1118,7 +1120,55 @@ html, body {
   cursor: pointer;
   transition: background 0.15s;
 }
-.btn-view-detail:active { background: rgba(14,107,79,0.07); }
+.btn-view-detail:active,
+.btn-view-preinfo:active { background: rgba(14,107,79,0.07); }
+.btn-view-detail:disabled,
+.btn-view-preinfo:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.screen-history-preinfo .preinfo-body {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.preinfo-row {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+}
+
+.preinfo-label {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  font-weight: 700;
+  margin-bottom: var(--space-2);
+}
+
+.preinfo-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.preinfo-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 5px 11px;
+  border-radius: var(--radius-pill);
+  background: rgba(14,107,79,0.08);
+  color: var(--accent-primary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.preinfo-empty {
+  color: var(--text-tertiary);
+  font-size: 14px;
+}
 
 /* 상담 요약 */
 .history-consult-section {

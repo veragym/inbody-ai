@@ -46,7 +46,7 @@ registerScreen("capture", {
   </div>
 </div>`;
 
-    document.getElementById("back-btn").addEventListener("click", () => navigate("persona"));
+    document.getElementById("back-btn").addEventListener("click", () => navigate("pre-input"));
 
     let selectedFile = null;
 

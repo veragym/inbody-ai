@@ -14,6 +14,7 @@ const State = {
   lastRecord: null,          // 직전 인바디 기록 요약 (재방문 표시용)
   selectedHistoryRecord: null, // 이력 상세 보기용 레코드
 
+  preInputBackScreen: null,
   reset() {
     this.trainer = null;
     this.member = null;
@@ -27,5 +28,6 @@ const State = {
     this.aiOutput = null;
     this.lastRecord = null;
     this.selectedHistoryRecord = null;
+    this.preInputBackScreen = null;
   },
 };
