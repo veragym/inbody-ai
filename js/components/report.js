@@ -148,14 +148,15 @@ function _reportMetric(metric, value, gender, label, unit, higherBetter, note, i
   const t = _target(metric, value, gender, higherBetter);
   const disp = value != null ? `${value}${unit}` : "—";
   const STATUS_LABEL = { low: "표준 이하", standard: "표준", high: "표준 이상", neutral: "측정 전" };
+  const badgePct = t ? Math.max(14, Math.min(86, t.markerPct)) : null;
 
   const connHtml = t ? (() => {
     const a = Math.min(b.markerPct, t.markerPct), w = Math.abs(b.markerPct - t.markerPct);
     return `<div class="rep-conn" style="left:${a}%;width:${w}%"></div>
             <div class="rep-delta" style="left:${(a + w / 2)}%">${t.delta > 0 ? "+" : ""}${t.delta}${unit}</div>`;
   })() : "";
-  const tgtMarker = t ? `<div class="rep-tg" style="left:${t.markerPct}%"></div>
-                         <div class="rep-tbadge" style="left:${t.markerPct}%">목표 ${t.target}${unit}</div>` : "";
+  const tgtMarker = t ? `<div class="rep-tbadge" style="left:${badgePct}%">목표 ${t.target}${unit}</div>
+                         <div class="rep-tg" style="left:${t.markerPct}%"></div>` : "";
   const tgtText = t ? `<div class="rep-metric-target">목표 ${t.target}${unit} ${t.dir === "up" ? "이상 ↑" : "이하 ↓"}</div>` : "";
 
   return `
