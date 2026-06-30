@@ -19,6 +19,11 @@ registerScreen("capture", {
       <div class="upload-zone-icon">↑</div>
       <p class="upload-zone-title">결과지 사진을 선택해주세요</p>
       <p class="upload-zone-tip">선명하게 찍힌 사진일수록 인식률이 높아요</p>
+      <ul class="capture-checklist">
+        <li>결과지 네 모서리가 모두 보이게 촬영해주세요</li>
+        <li>숫자 영역에 빛반사나 그림자가 없도록 맞춰주세요</li>
+        <li>사진이 흐리면 OCR 전에 다시 촬영해주세요</li>
+      </ul>
       <div class="upload-buttons">
         <label class="btn-primary upload-btn" for="camera-input">
           카메라로 촬영
@@ -34,6 +39,10 @@ registerScreen("capture", {
     <!-- 선택 후: 미리보기 -->
     <div class="preview-zone hidden" id="preview-zone">
       <img id="preview-img" class="preview-full-img" alt="인바디 결과지 미리보기" />
+      <div class="preview-check">
+        <strong>OCR 시작 전 확인</strong>
+        <span>결과지 전체와 숫자가 또렷하게 보이면 진행해주세요.</span>
+      </div>
       <div class="preview-actions">
         <button class="btn-secondary reselect-btn" id="reselect-btn">다시 선택</button>
       </div>

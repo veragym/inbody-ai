@@ -1,5 +1,16 @@
 // ② 회원 검색/등록 화면
 
+function escapeHtml(value) {
+  if (value == null) return "";
+  return String(value).replace(/[&<>"']/g, c => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  }[c]));
+}
+
 registerScreen("member-search", {
   mount(el) {
     if (!State.trainer) { navigate("login"); return; }
@@ -9,7 +20,7 @@ registerScreen("member-search", {
   <header class="screen-header">
     <button class="back-btn" id="back-btn">← 뒤로</button>
     <h1 class="screen-title">회원 검색</h1>
-    <p class="screen-subtitle">${State.trainer.name} 트레이너 · ${State.trainer.branch}</p>
+    <p class="screen-subtitle">${escapeHtml(State.trainer.name)} 트레이너 · ${escapeHtml(State.trainer.branch)}</p>
   </header>
 
   <div class="search-area">
@@ -76,21 +87,21 @@ registerScreen("member-search", {
 
     function renderMembers(name, members) {
         if (!members || members.length === 0) {
-          resultsEl.innerHTML = `<p class="empty-msg">'${name}'(으)로 검색된 회원이 없어요.</p>`;
+          resultsEl.innerHTML = `<p class="empty-msg">'${escapeHtml(name)}'(으)로 검색된 회원이 없어요.</p>`;
           showNewTrigger();
           return;
         }
         resultsEl.innerHTML = members.map(m => `
 <div class="member-row">
-  <button class="member-btn" data-id="${m.id}" data-name="${m.name}"
-    data-gender="${m.gender || ""}" data-birth="${m.birth_year || ""}"
-    data-phone="${m.phone_last4 || ""}" data-branch="${m.branch}">
-    <span class="member-name">${m.name}${m.phone_last4 ? " " + m.phone_last4 : ""}</span>
-    <span class="member-meta">${m.gender || "—"} ${m.birth_year ? (new Date().getFullYear() - m.birth_year) + "세" : ""}</span>
+  <button class="member-btn" data-id="${escapeHtml(m.id)}" data-name="${escapeHtml(m.name)}"
+    data-gender="${escapeHtml(m.gender || "")}" data-birth="${escapeHtml(m.birth_year || "")}"
+    data-phone="${escapeHtml(m.phone_last4 || "")}" data-branch="${escapeHtml(m.branch)}">
+    <span class="member-name">${escapeHtml(m.name)}${m.phone_last4 ? " " + escapeHtml(m.phone_last4) : ""}</span>
+    <span class="member-meta">${escapeHtml(m.gender || "—")} ${m.birth_year ? (new Date().getFullYear() - m.birth_year) + "세" : ""}</span>
   </button>
   <div class="member-row-actions">
-    <span class="member-history-badge" id="hist-${m.id}">기록 확인 중...</span>
-    <button class="btn-delete" data-id="${m.id}" data-name="${m.name}">삭제</button>
+    <span class="member-history-badge" id="hist-${escapeHtml(m.id)}">기록 확인 중...</span>
+    <button class="btn-delete" data-id="${escapeHtml(m.id)}" data-name="${escapeHtml(m.name)}">삭제</button>
   </div>
 </div>`).join("");
         showNewTrigger();

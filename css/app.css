@@ -536,7 +536,22 @@ html, body {
 .upload-zone-tip {
   font-size: var(--text-caption-size);
   color: var(--text-tertiary);
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-3);
+}
+
+.capture-checklist {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  margin: 0 auto var(--space-5);
+  color: var(--text-secondary);
+  font-size: var(--text-caption-size);
+  text-align: left;
+}
+
+.capture-checklist li {
+  margin-left: var(--space-4);
 }
 
 .upload-buttons {
@@ -575,6 +590,23 @@ html, body {
 
 .reselect-btn { margin-top: 0; }
 
+.preview-check {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  background: var(--surface-card);
+  color: var(--text-secondary);
+  font-size: var(--text-caption-size);
+}
+
+.preview-check strong {
+  display: block;
+  color: var(--text-primary);
+  font-size: var(--text-body-size);
+  margin-bottom: var(--space-1);
+}
+
 /* ══════════════════════════════════════════
    OCR 확인 화면
 ══════════════════════════════════════════ */
@@ -591,12 +623,18 @@ html, body {
 .ocr-field-row {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--space-3);
   background: var(--surface-card);
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-default);
-  padding: 0 var(--space-4);
-  height: 56px;
+  padding: var(--space-2) var(--space-4);
+  min-height: 56px;
+}
+
+.ocr-field-row.is-warning {
+  border-color: #D97706;
+  background: #FFF8E6;
 }
 
 .ocr-field-label {
@@ -640,6 +678,41 @@ html, body {
   border-radius: var(--radius-pill);
   padding: 3px 8px;
   white-space: nowrap;
+}
+
+.badge-ocr-warning {
+  font-size: 11px;
+  font-weight: 700;
+  background: #D97706;
+  color: #fff;
+  border-radius: var(--radius-pill);
+  padding: 3px 8px;
+  white-space: nowrap;
+}
+
+.ocr-field-warning {
+  flex-basis: 100%;
+  color: #9A4B00;
+  font-size: var(--text-caption-size);
+  line-height: 1.35;
+}
+
+.ocr-warning-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-4);
+  border: 1px solid #D97706;
+  border-radius: var(--radius-sm);
+  background: #FFF8E6;
+  color: #9A4B00;
+  font-size: var(--text-caption-size);
+}
+
+.ocr-warning-summary strong {
+  color: var(--text-primary);
+  font-size: var(--text-body-size);
 }
 
 /* ══════════════════════════════════════════
