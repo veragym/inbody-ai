@@ -170,6 +170,26 @@
 .rep-change-card.is-strong { border-color: #BFD8CF; background: #F1F8F5; }
 .rep-change-k { display: block; font-size: 13px; font-weight: 800; color: #0F6E56; margin-bottom: 7px; }
 .rep-change-card p { margin: 0; font-size: 15px; line-height: 1.55; color: #4A5752; }
+.rep-key-condition {
+  display: block;
+  width: 100%;
+  overflow: visible;
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.rep-key-condition b,
+.rep-key-condition span {
+  display: block;
+}
+.rep-key-condition b {
+  margin-bottom: 4px;
+}
+.rep-change-caution {
+  overflow: visible;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
 
 /* 부위별 근육 */
 .rep-seg { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }

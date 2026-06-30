@@ -227,8 +227,8 @@ function _expectedChange(change) {
     ${current ? `<div class="rep-change-card"><span class="rep-change-k">현재 계획</span><p>${_esc(current)}</p></div>` : ""}
     ${improved ? `<div class="rep-change-card is-strong"><span class="rep-change-k">개선 계획</span><p>${_esc(improved)}</p></div>` : ""}
   </div>
-  ${condition ? `<p class="rep-mean"><b>핵심 조건</b><br>${_esc(condition)}</p>` : ""}
-  ${caution ? `<p class="rep-comp-desc">${_esc(caution)}</p>` : ""}
+  ${condition ? `<p class="rep-mean rep-key-condition"><b>핵심 조건</b><span>${_esc(condition)}</span></p>` : ""}
+  ${caution ? `<p class="rep-comp-desc rep-change-caution">${_esc(caution)}</p>` : ""}
 </section>`;
 }
 
